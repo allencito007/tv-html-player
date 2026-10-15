@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101114">
+  <title>Jeyran — Cinema Edition</title>
+  <style>
+    :root { color-scheme: dark; --bg:#101114; --panel:#191b21; --muted:#a5a8b2; --text:#f7f7fa; --accent:#a78bfa; --line:#30323b; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; background:radial-gradient(ellipse at top,#252033 0,#101114 52%); color:var(--text); font:16px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    .shell { width:min(1050px,100%); margin:auto; padding:clamp(16px,4vw,36px); }
+    header { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:22px; }
+    .brand { display:flex; align-items:center; gap:12px; }
+    .mark { width:42px;height:42px;display:grid;place-items:center;border-radius:14px;background:var(--accent);color:#171222;font-size:20px;font-weight:900; }
+    h1 { font-size:clamp(22px,4vw,32px); line-height:1.15; margin:0; letter-spacing:-.03em; }
+    .sub { color:var(--muted); margin:5px 0 0; font-size:14px; }
+    .tag { border:1px solid var(--line); border-radius:999px; padding:6px 11px; color:#d8d4e7; font-size:12px; white-space:nowrap; }
+    .player-card { background:rgba(25,27,33,.94); border:1px solid var(--line); border-radius:20px; overflow:hidden; box-shadow:0 20px 70px #0005; }
+    .screen { background:#000; aspect-ratio:16/9; display:grid; place-items:center; position:relative; }
+    .video-watermark {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 110px;
+  height: auto;
+  opacity: 0.35;
+  z-index: 10;
+  pointer-events: none;
+  object-fit: contain;
+}
+
+@media (max-width: 560px) {
+  .video-watermark {
+    width: 75px;
+    top: 8px;
+    right: 8px;
+  }
+}
+    video { display:block; width:100%; height:100%; max-height:72vh; aspect-ratio:16/9; background:#000; object-fit:contain; }
+    .status { padding:12px 16px; color:var(--muted); font-size:13px; border-top:1px solid var(--line); }
+    .status.error { color:#fca5a5; }
+    .details { padding:20px; }
+    .episode-head { display:flex; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; gap:14px; }
+    h2 { margin:0; font-size:21px; letter-spacing:-.02em; }
+    .episode-note { margin:5px 0 0; color:var(--muted); font-size:14px; }
+    .controls { display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin-top:20px; }
+    button, select { font:inherit; color:var(--text); background:#252731; border:1px solid #41434f; border-radius:12px; min-height:44px; padding:10px 14px; }
+    button { cursor:pointer; font-weight:650; }
+    button:hover { background:#303340; }
+    button.primary { background:var(--accent); color:#171222; border-color:transparent; }
+    button.primary:hover { background:#b9a5ff; }
+    button:focus-visible,select:focus-visible,input:focus-visible { outline:3px solid #c4b5fd; outline-offset:2px; }
+    select { flex:1; min-width:170px; }
+    .toggle { display:flex; align-items:center; gap:9px; color:#e5e2ed; font-size:14px; padding:8px 2px; }
+    .toggle input { width:18px;height:18px; accent-color:var(--accent); }
+    .episode-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; margin-top:18px; }
+    .episode { text-align:left; padding:14px; display:flex; align-items:center; gap:12px; }
+    .episode .num { display:grid; place-items:center; width:42px;height:42px; flex:0 0 42px; border-radius:12px; background:#34313f; color:#e9ddff; font-weight:800; }
+    .episode.watched {border-color:#eab308;background:#3b3219}
+    .episode.watched .num {background:#eab308;color:#211900}
+    .episode.watched .episode-title {text-decoration:line-through;text-decoration-color:#facc15}
+    .watch-toggle {margin-left:auto;min-height:34px;padding:5px 8px;font-size:12px;white-space:nowrap}
+    .episode {cursor:pointer}
+    .episode[hidden]{display:none!important}
+    .episode:focus-visible {outline:3px solid #c4b5fd}
+    .episode.active { border-color:var(--accent); background:#2b2538; }
+    .episode small { display:block; color:var(--muted); font-weight:400; margin-top:2px; }
+    .foot { color:var(--muted); font-size:12px; margin:18px 2px 0; }
+    @media (max-width:560px) {
+      .shell { padding:14px; }
+      header { align-items:flex-start; }
+      .tag { display:none; }
+      .details { padding:16px; }
+      .episode-list { grid-template-columns:1fr; }
+      .controls > button { flex:1; }
+      .controls select { flex-basis:100%; }
+      video { max-height:none; }
+    }
+
+    .cinema-toolbar,.extras,.library-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .cinema-toolbar{padding:12px 16px;border-bottom:1px solid var(--line);background:#15161d}
+    .cinema-toolbar button,.cinema-toolbar select,.extras button,.import-label{min-height:36px;padding:7px 10px;font-size:12px;border-radius:9px}
+    .cinema-toolbar label{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)}
+    .cinema-toolbar select{min-width:72px;flex:none}
+    .library-head{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-top:26px}
+    .library-tools input,.library-tools select{min-height:38px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:#252731;color:white;max-width:190px;min-width:0;flex:1}
+    .progress-track{height:7px;background:#30313b;border-radius:20px;overflow:hidden;margin-top:13px}
+    #seriesProgress{height:100%;width:0;background:linear-gradient(90deg,#a78bfa,#facc15);transition:width .3s}
+    .continue-panel{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px;margin-top:15px;border:1px solid #6550a2;background:#252036;border-radius:12px}
+    .continue-panel[hidden]{display:none}
+    .continue-panel button{flex:none}
+    .episode .episode-title{flex:1;min-width:0}
+    .episode-progress{height:3px;background:#333;margin-top:6px;border-radius:10px;overflow:hidden}
+    .episode-progress span{display:block;height:100%;background:#a78bfa}
+    .extras{margin-top:18px}
+    .import-label{display:inline-flex;align-items:center;cursor:pointer;background:#252731;border:1px solid #41434f;color:white}
+    .help{margin-top:20px;padding:12px 14px;background:#14151a;border:1px solid var(--line);border-radius:12px;color:var(--muted);font-size:13px}
+    .help summary{cursor:pointer;color:#e9ddff;font-weight:650}
+    body.theater{background:#000}
+    body.theater .player-card{box-shadow:0 0 0 100vmax #000a}
+    .tap-feedback{position:absolute;z-index:12;top:40%;left:50%;transform:translate(-50%,-50%);font-size:30px;pointer-events:none;text-shadow:0 2px 12px #000}
+    .screen:fullscreen, .screen:-webkit-full-screen {width:100vw;height:100vh;aspect-ratio:auto;background:#000}
+    .screen:fullscreen video, .screen:-webkit-full-screen video {height:100%;width:100%;max-height:none}
+    .screen:fullscreen .video-watermark, .screen:-webkit-full-screen .video-watermark {width:clamp(75px,9vw,150px);top:20px;right:20px}
+    .video-controls {position:absolute;bottom:0;left:0;right:0;z-index:20;display:flex;align-items:center;gap:9px;padding:20px 12px 10px;background:linear-gradient(transparent,#000c);opacity:1;transition:opacity .2s}
+    .video-controls button {border:0;background:transparent;color:white;min-height:36px;padding:5px 8px;border-radius:5px;font-size:19px}
+    .video-controls button:hover {background:#ffffff30}
+    .video-controls input[type=range] {accent-color:#a78bfa;cursor:pointer;min-width:0}
+    #seek {flex:1}
+    #volume {width:72px}
+    #timeDisplay {font-size:12px;white-space:nowrap;color:#fff}
+    .screen:not(:hover):not(:focus-within).playing .video-controls {opacity:0}
+    @media(max-width:560px){.cinema-toolbar{padding:8px;gap:5px}.cinema-toolbar button{font-size:11px}.library-tools{width:100%}.library-tools input{flex-basis:100%;max-width:none}.continue-panel{align-items:flex-start}.episode{gap:8px;padding:10px}.watch-toggle{font-size:11px;padding:5px 6px}#volume{display:none}.video-controls{gap:3px;padding:14px 5px 6px}.video-controls button{padding:4px 6px}#timeDisplay{font-size:10px}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div class="brand">
+        <div class="mark" aria-hidden="true">▶</div>
+        <div>
+          <h1>Jeyran</h1>
+          <p class="sub">Cinema Edition · Your personal theater</p>
+        </div>
+      </div>
+      <span class="tag">✦ CINEMA EDITION</span>
+    </header>
+
+    <section class="player-card" aria-label="Video player">
+      <div class="screen">
+        <video id="video" playsinline preload="metadata" aria-label="Jeyran episode video"></video>
+        <img
+  src="images/AlenD-dev-watermark.png"
+  class="video-watermark"
+  alt="AlenD.dev"
+>
+        <div id="tapFeedback" class="tap-feedback" aria-hidden="true"></div><div class="video-controls" aria-label="Video playback controls">
+          <button id="playPause" type="button" aria-label="Play or pause">▶</button>
+          <span id="timeDisplay">0:00 / 0:00</span>
+          <input id="seek" type="range" min="0" max="1000" value="0" aria-label="Seek video">
+          <button id="mute" type="button" aria-label="Mute or unmute">🔊</button>
+          <input id="volume" type="range" min="0" max="1" step="0.05" value="1" aria-label="Volume">
+          <button id="fullscreen" type="button" aria-label="Fullscreen" title="Fullscreen">⛶</button>
+        </div>
+      </div>
+      <div class="cinema-toolbar" aria-label="Cinema tools">
+        <button id="back10" title="Back 10 seconds">↶ 10s</button>
+        <button id="forward10" title="Forward 10 seconds">10s ↷</button>
+        <label>Speed <select id="speed"><option value=".5">0.5×</option><option value=".75">0.75×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="1.75">1.75×</option><option value="2">2×</option></select></label>
+        <button id="pip" title="Picture in picture">▣ Mini player</button>
+        <button id="cinema" title="Dim the surrounding page">☾ Theater</button>
+        <button id="loop" aria-pressed="false">↻ Loop off</button>
+        <button id="shuffle" aria-pressed="false">⤨ Shuffle off</button>
+        <button id="screenshot" title="Capture frame (if source allows)">▧ Snapshot</button>
+        <button id="shortcuts" title="Keyboard shortcuts">⌨ Keys</button>
+      </div>
+      <div id="status" class="status" role="status" aria-live="polite">Choose an episode and press Play.</div>
+      <div class="details">
+        <div class="episode-head">
+          <div>
+            <h2 id="nowPlaying">Episode 16</h2>
+            <p class="episode-note">Use the episode selector or the buttons below to switch episodes.</p>
+          </div>
+          <label class="toggle"><input id="autoNext" type="checkbox" checked> Play next episode automatically</label>
+        </div>
+        <div class="controls">
+          <button id="prev" type="button">← Previous</button>
+          <select id="episodeSelect" aria-label="Choose episode"></select>
+          <button id="next" class="primary" type="button">Next episode →</button>
+        </div>
+        <div class="library-head"><div><strong id="libraryStats">Your library</strong><p class="episode-note">Yellow = watched · progress saved automatically</p></div>
+      <div class="library-tools"><input id="episodeSearch" type="search" placeholder="Search episodes…" aria-label="Search episodes"><select id="filterEpisodes" aria-label="Filter episodes"><option value="all">All episodes</option><option value="unwatched">Unwatched</option><option value="watched">Watched</option><option value="progress">In progress</option></select><select id="sortEpisodes" aria-label="Sort episodes"><option value="asc">First → last</option><option value="desc">Last → first</option></select></div></div>
+      <div class="progress-track"><div id="seriesProgress"></div></div>
+      <div id="continuePanel" class="continue-panel" hidden><div><strong>▶ Continue watching</strong><p id="continueText" class="episode-note"></p></div><button id="continueButton" class="primary">Resume ▶</button></div>
+      <div id="episodeList" class="episode-list"></div>
+      <div class="extras"><button id="markAll">✓ Mark all watched</button><button id="clearWatched">↶ Clear watched</button><button id="exportData">↓ Export history</button><label class="import-label">↑ Import history<input type="file" id="importData" accept="application/json,.json" hidden></label><button id="resetProgress">Reset playback progress</button></div>
+      <details class="help"><summary>✦ More features & keyboard controls</summary><p>Space / K: Play or pause · ← / →: Skip 10 seconds · J / L: Skip 10 seconds · F: Fullscreen · M: Mute · ↑ / ↓: Volume · N / P: Next or previous episode · [ / ]: Playback speed · 0–9: Seek to percentage · Double-tap video edges to skip. Watched episodes are stored locally in this browser.</p></details>
+      </div>
+    </section>
+   
+  </main>
+
+  <script>
+    // Replace these with direct video URLs you own or are authorized to stream.
+    const episodes = [
+      { title: "Episode 1", url: "https://pl.farsiland.buzz//series//jeyran//01.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 2", url: "https://pl.farsiland.buzz//series//jeyran//02.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 3", url: "https://pl.farsiland.buzz//series//jeyran//03.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 4", url: "https://pl.farsiland.buzz//series//jeyran//04.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 5", url: "https://pl.farsiland.buzz//series//jeyran//05.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 6", url: "https://pl.farsiland.buzz//series//jeyran//06.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 7", url: "https://pl.farsiland.buzz//series//jeyran//07.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 8", url: "https://pl.farsiland.buzz//series//jeyran//08.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 9", url: "https://pl.farsiland.buzz//series//jeyran//09.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 10", url: "https://pl.farsiland.buzz//series//jeyran//10.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 11", url: "https://pl.farsiland.buzz//series//jeyran//11.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 12", url: "https://pl.farsiland.buzz//series//jeyran//12.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 13", url: "https://pl.farsiland.buzz//series//jeyran//13.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 14", url: "https://pl.farsiland.buzz//series//jeyran//14.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 15", url: "https://pl.farsiland.buzz//series//jeyran//15.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 16", url: "https://pl.farsiland.buzz//series//jeyran//16.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 17", url: "https://pl.farsiland.buzz//series//jeyran//17.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 18", url: "https://pl.farsiland.buzz//series//jeyran//18.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 19", url: "https://pl.farsiland.buzz//series//jeyran//19.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 20", url: "https://pl.farsiland.buzz//series//jeyran//20.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 21", url: "https://pl.farsiland.buzz//series//jeyran//21.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 22", url: "https://pl.farsiland.buzz//series//jeyran//22.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 23", url: "https://pl.farsiland.buzz//series//jeyran//23.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 24", url: "https://pl.farsiland.buzz//series//jeyran//24.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 25", url: "https://pl.farsiland.buzz//series//jeyran//25.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 26", url: "https://pl.farsiland.buzz//series//jeyran//26.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 27", url: "https://pl.farsiland.buzz//series//jeyran//27.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 28", url: "https://pl.farsiland.buzz//series//jeyran//28.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 29", url: "https://pl.farsiland.buzz//series//jeyran//29.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 30", url: "https://pl.farsiland.buzz//series//jeyran//30.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 31", url: "https://pl.farsiland.buzz//series//jeyran//31.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 32", url: "https://pl.farsiland.buzz//series//jeyran//32.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 33", url: "https://pl.farsiland.buzz//series//jeyran//33.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 34", url: "https://pl.farsiland.buzz//series//jeyran//34.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 35", url: "https://pl.farsiland.buzz//series//jeyran//35.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 36", url: "https://pl.farsiland.buzz//series//jeyran//36.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 37", url: "https://pl.farsiland.buzz//series//jeyran//37.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 38", url: "https://pl.farsiland.buzz//series//jeyran//38.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 39", url: "https://pl.farsiland.buzz//series//jeyran//39.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 40", url: "https://pl.farsiland.buzz//series//jeyran//40.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 41", url: "https://pl.farsiland.buzz//series//jeyran//41.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 42", url: "https://pl.farsiland.buzz//series//jeyran//42.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 43", url: "https://pl.farsiland.buzz//series//jeyran//43.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 44", url: "https://pl.farsiland.buzz//series//jeyran//44.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 45", url: "https://pl.farsiland.buzz//series//jeyran//45.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 46", url: "https://pl.farsiland.buzz//series//jeyran//46.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 47", url: "https://pl.farsiland.buzz//series//jeyran//47.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 48", url: "https://pl.farsiland.buzz//series//jeyran//48.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 49", url: "https://pl.farsiland.buzz//series//jeyran//49.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 50", url: "https://pl.farsiland.buzz//series//jeyran//50.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 51", url: "https://pl.farsiland.buzz//series//jeyran//51.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+      { title: "Episode 52", url: "https://pl.farsiland.buzz//series//jeyran//52.720.mp4?md5=Ql74Z5yuqwhfuXxh2kQnmQ" },
+    ];
+
+    const video = document.getElementById("video");
+    const status = document.getElementById("status");
+    const nowPlaying = document.getElementById("nowPlaying");
+    const select = document.getElementById("episodeSelect");
+    const autoNext = document.getElementById("autoNext");
+    const episodeList = document.getElementById("episodeList");
+    let current = 0;
+    let switchRequested = false;
+    const key = 'jeyran-progress-v1';
+    let saved = {};
+    try { saved = JSON.parse(localStorage.getItem(key) || '{}') || {}; } catch {}
+    saved.positions ||= {};
+    saved.watched ||= {};
+    const persist = () => { try { localStorage.setItem(key, JSON.stringify(saved)); } catch {} };
+    function savePosition() {
+      if (!video.currentSrc || !Number.isFinite(video.currentTime) || video.currentTime <= 0) return;
+      if (Number.isFinite(video.duration) && video.duration - video.currentTime < 8) return;
+      saved.positions[current] = video.currentTime;
+      persist();
+    }
+    function refreshWatched() {
+      episodeList.querySelectorAll('[data-episode]').forEach(el => {
+        const watched = !!saved.watched[el.dataset.episode];
+        el.classList.toggle('watched', watched);
+        const b = el.querySelector('.watch-toggle');
+        b.textContent = watched ? '✓ Watched' : 'Mark watched';
+        b.setAttribute('aria-pressed', String(watched));
+      });
+    }
+    let lastSave = 0;
+    video.addEventListener('timeupdate', () => {
+      if (Date.now() - lastSave > 4000) { savePosition(); lastSave = Date.now(); }
+    });
+    video.addEventListener('pause', savePosition);
+    window.addEventListener('pagehide', savePosition);
+
+    function setStatus(message, isError = false) {
+      status.textContent = message;
+      status.classList.toggle("error", isError);
+    }
+
+    async function loadEpisode(index, shouldPlay = false) {
+      savePosition();
+      current = Math.max(0, Math.min(episodes.length - 1, index));
+      saved.lastEpisode = current;
+      persist();
+      switchRequested = false;
+      const episode = episodes[current];
+      nowPlaying.textContent = episode.title;
+      select.value = String(current);
+      [...episodeList.querySelectorAll("[data-episode]")].forEach((button, i) => button.classList.toggle("active", i === current));
+      document.getElementById("prev").disabled = current === 0;
+      document.getElementById("next").disabled = current === episodes.length - 1;
+      video.src = episode.url;
+      video.load();
+      const episodeIndex = current;
+      video.addEventListener('loadedmetadata', function restore() {
+        if (current !== episodeIndex) return;
+        const position = Number(saved.positions[current] || 0);
+        if (position > 0 && Number.isFinite(video.duration) && position < video.duration - 8) {
+          try { video.currentTime = position; } catch {}
+        }
+      }, {once:true});
+      setStatus("Loading " + episode.title + "…");
+      if (shouldPlay) {
+        try {
+          await video.play();
+          setStatus("Now playing " + episode.title + ".");
+        } catch {
+          setStatus("Ready to play. Tap Play if your browser blocked automatic playback.");
+        }
+      }
+    }
+
+    video.addEventListener("playing", () => setStatus("Now playing " + episodes[current].title + "."));
+    video.addEventListener("waiting", () => setStatus("Buffering video…"));
+    video.addEventListener("error", () => {
+      setStatus("This video could not be loaded. The host may have blocked direct playback or the link may have expired.", true);
+    });
+    video.addEventListener("ended", () => {
+      saved.watched[current] = true;
+      delete saved.positions[current];
+      persist();
+      refreshWatched();
+      if (autoNext.checked && current < episodes.length - 1 && !switchRequested) {
+        switchRequested = true;
+        loadEpisode(current + 1, true);
+      } else if (current === episodes.length - 1) {
+        setStatus("You have reached the last episode.");
+      }
+    });
+
+    // Build the selector and clickable episode cards from the same episode data.
+    episodes.forEach((episode, index) => {
+      const option = document.createElement("option");
+      option.value = String(index);
+      option.textContent = episode.title;
+      select.appendChild(option);
+
+      const button = document.createElement("div");
+      button.setAttribute('role', 'button');
+      button.tabIndex = 0;
+      button.className = "episode" + (index === 0 ? " active" : "");
+      button.type = "button";
+      button.dataset.episode = String(index);
+      button.innerHTML = '<span class="num">' + (index + 1) + '</span><span>' +
+        episode.title + '<small>Click to play episode</small></span>';
+      button.querySelector('span:nth-child(2)').classList.add('episode-title');
+      const toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.className = 'watch-toggle';
+      toggle.setAttribute('aria-label', 'Toggle watched: ' + episode.title);
+      toggle.addEventListener('click', e => {
+        e.stopPropagation();
+        saved.watched[index] = !saved.watched[index];
+        persist(); refreshWatched();
+      });
+      button.appendChild(toggle);
+      episodeList.appendChild(button);
+      button.addEventListener("click", () => loadEpisode(index, true));
+      button.addEventListener('keydown', e => {
+        if (e.target === button && (e.key === 'Enter' || e.key === ' ')) {
+          e.preventDefault(); loadEpisode(index, true);
+        }
+      });
+    });
+
+    select.addEventListener("change", () => loadEpisode(Number(select.value), true));
+    document.getElementById("prev").addEventListener("click", () => loadEpisode(current - 1, true));
+    document.getElementById("next").addEventListener("click", () => loadEpisode(current + 1, true));
+
+
+    // Custom controls ensure fullscreen targets the watermark's parent container.
+    const screen = document.querySelector('.screen');
+    const playPause = document.getElementById('playPause');
+    const seek = document.getElementById('seek');
+    const volume = document.getElementById('volume');
+    const mute = document.getElementById('mute');
+    const fullscreen = document.getElementById('fullscreen');
+    const timeDisplay = document.getElementById('timeDisplay');
+    const fmt = n => Number.isFinite(n) ? `${Math.floor(n / 60)}:${String(Math.floor(n % 60)).padStart(2, '0')}` : '0:00';
+    playPause.addEventListener('click', () => video.paused ? video.play() : video.pause());
+    video.addEventListener('play', () => {playPause.textContent='❚❚';screen.classList.add('playing')});
+    video.addEventListener('pause', () => {playPause.textContent='▶';screen.classList.remove('playing')});
+    video.addEventListener('timeupdate', updateProgress);
+    video.addEventListener('durationchange', updateProgress);
+    function updateProgress() {
+      seek.value = video.duration && Number.isFinite(video.duration) ? Math.round(video.currentTime / video.duration * 1000) : 0;
+      timeDisplay.textContent = fmt(video.currentTime) + ' / ' + fmt(video.duration);
+    }
+    seek.addEventListener('input', () => {if(Number.isFinite(video.duration)) video.currentTime=video.duration * Number(seek.value)/1000});
+    volume.addEventListener('input', () => {video.volume=Number(volume.value);video.muted=false;updateMute()});
+    mute.addEventListener('click', () => {video.muted=!video.muted;updateMute()});
+    function updateMute(){mute.textContent=video.muted || video.volume===0 ? '🔇' : '🔊'}
+    fullscreen.addEventListener('click', async () => {
+      try {
+        if(document.fullscreenElement) await document.exitFullscreen();
+        else if(screen.requestFullscreen) await screen.requestFullscreen();
+        else if(screen.webkitRequestFullscreen) screen.webkitRequestFullscreen();
+        else setStatus('This browser does not support fullscreen with HTML overlays.',true);
+      } catch(e) {setStatus('Fullscreen was blocked by this browser.',true)}
+    });
+    document.addEventListener('fullscreenchange', () => {
+      fullscreen.title=document.fullscreenElement ? 'Exit fullscreen' : 'Fullscreen';
+      fullscreen.setAttribute('aria-label',fullscreen.title);
+    });
+    video.addEventListener('click', () => video.paused ? video.play() : video.pause());
+
+    refreshWatched();
+
+    // Cinema Edition features; settings and history are stored only on this device.
+    const $ = id => document.getElementById(id);
+    saved.settings ||= {};
+    const safeTime = t => Number.isFinite(t) ? Math.max(0, t) : 0;
+    function renderLibrary() {
+      const watchedCount = episodes.filter((_,i)=>saved.watched[i]).length;
+      $('libraryStats').textContent = `${watchedCount} of ${episodes.length} episodes watched`;
+      $('seriesProgress').style.width = `${100*watchedCount/episodes.length}%`;
+      const q = $('episodeSearch').value.trim().toLowerCase();
+      const filter = $('filterEpisodes').value;
+      const reversed = $('sortEpisodes').value === 'desc';
+      [...episodeList.children].forEach(el => {
+        const i=Number(el.dataset.episode), watched=!!saved.watched[i], inProgress=Number(saved.positions[i])>0;
+        const matches = episodes[i].title.toLowerCase().includes(q) &&
+          (filter==='all'||filter==='watched'&&watched||filter==='unwatched'&&!watched||filter==='progress'&&inProgress&&!watched);
+        el.hidden=!matches;
+        el.style.order=reversed ? episodes.length-i : i;
+        let bar=el.querySelector('.episode-progress');
+        if(!bar){bar=document.createElement('div');bar.className='episode-progress';bar.innerHTML='<span></span>';el.querySelector('.episode-title').appendChild(bar);}
+        bar.hidden=!inProgress || watched;
+        if(inProgress&&!watched) bar.querySelector('span').style.width=`${Math.min(98,Math.max(2,Number(saved.positions[i])/(i===current&&Number.isFinite(video.duration)?video.duration:2400)*100))}%`;
+      });
+      const last=Number(saved.lastEpisode)||0;
+      const pos=Number(saved.positions[last])||0;
+      $('continuePanel').hidden=pos<=0 || !!saved.watched[last];
+      $('continueText').textContent=`${episodes[last].title} · resume at ${Math.floor(pos/60)}:${String(Math.floor(pos%60)).padStart(2,'0')}`;
+    }
+    const originalRefresh=refreshWatched;
+    refreshWatched=function(){originalRefresh();renderLibrary()};
+    const originalPersist=persist;
+    // persist is a const in the original player; explicit render calls are used after history changes.
+    $('episodeSearch').addEventListener('input',renderLibrary);
+    $('filterEpisodes').addEventListener('change',renderLibrary);
+    $('sortEpisodes').addEventListener('change',renderLibrary);
+    $('continueButton').addEventListener('click',()=>loadEpisode(Number(saved.lastEpisode)||0,true));
+    $('back10').onclick=()=>video.currentTime=Math.max(0,safeTime(video.currentTime)-10);
+    $('forward10').onclick=()=>{if(Number.isFinite(video.duration))video.currentTime=Math.min(video.duration,safeTime(video.currentTime)+10)};
+    $('speed').value=String(saved.settings.speed||1);
+    video.playbackRate=Number($('speed').value);
+    $('speed').onchange=()=>{video.playbackRate=Number($('speed').value);saved.settings.speed=video.playbackRate;persist()};
+    $('pip').onclick=async()=>{try{if(document.pictureInPictureElement)await document.exitPictureInPicture();else if(video.requestPictureInPicture)await video.requestPictureInPicture();else setStatus('Picture-in-picture is unavailable in this browser.',true)}catch{setStatus('Picture-in-picture was blocked by the browser.',true)}};
+    $('cinema').onclick=()=>{document.body.classList.toggle('theater');$('cinema').textContent=document.body.classList.contains('theater')?'☀ Exit theater':'☾ Theater'};
+    $('loop').onclick=()=>{video.loop=!video.loop;$('loop').textContent=video.loop?'↻ Loop on':'↻ Loop off';$('loop').setAttribute('aria-pressed',String(video.loop))};
+    let shuffle=false;
+    $('shuffle').onclick=()=>{shuffle=!shuffle;$('shuffle').textContent=shuffle?'⤨ Shuffle on':'⤨ Shuffle off';$('shuffle').setAttribute('aria-pressed',String(shuffle))};
+    // Shuffle next episode when the current one ends (before the original ended handler).
+    video.addEventListener('ended',()=>{if(shuffle&&autoNext.checked){switchRequested=true;const choices=episodes.map((_,i)=>i).filter(i=>i!==current);if(choices.length)queueMicrotask(()=>loadEpisode(choices[Math.floor(Math.random()*choices.length)],true))}},true);
+    $('shortcuts').onclick=()=>{document.querySelector('.help').open=true;document.querySelector('.help').scrollIntoView({behavior:'smooth',block:'nearest'})};
+    $('screenshot').onclick=()=>{try{const canvas=document.createElement('canvas');canvas.width=video.videoWidth;canvas.height=video.videoHeight;if(!canvas.width)throw Error();canvas.getContext('2d').drawImage(video,0,0);const a=document.createElement('a');a.download=`jeyran-episode-${current+1}.png`;a.href=canvas.toDataURL('image/png');a.click()}catch{setStatus('Snapshot unavailable: the video host may restrict capturing frames.',true)}};
+    $('markAll').onclick=()=>{if(!confirm('Mark all episodes watched?'))return;episodes.forEach((_,i)=>saved.watched[i]=true);persist();refreshWatched()};
+    $('clearWatched').onclick=()=>{if(!confirm('Clear all watched markers?'))return;saved.watched={};persist();refreshWatched()};
+    $('resetProgress').onclick=()=>{if(!confirm('Reset saved playback positions?'))return;saved.positions={};persist();renderLibrary()};
+    $('exportData').onclick=()=>{savePosition();const blob=new Blob([JSON.stringify({format:'jeyran-cinema-v1',positions:saved.positions,watched:saved.watched,lastEpisode:saved.lastEpisode,settings:saved.settings},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='jeyran-watch-history.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+    $('importData').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());if(data.format!=='jeyran-cinema-v1'||typeof data.positions!=='object'||typeof data.watched!=='object'||!data.positions||!data.watched)throw Error();saved.positions=data.positions;saved.watched=data.watched;saved.lastEpisode=Number(data.lastEpisode)||0;saved.settings=data.settings||{};persist();refreshWatched();loadEpisode(saved.lastEpisode,false);setStatus('Watch history imported successfully.')}catch{setStatus('Invalid watch history file.',true)}e.target.value=''};
+    document.addEventListener('keydown',e=>{
+      if(e.altKey||e.ctrlKey||e.metaKey||['INPUT','TEXTAREA','SELECT','BUTTON'].includes(document.activeElement?.tagName)||document.activeElement?.isContentEditable)return;
+      let handled=true;
+      switch(e.key.toLowerCase()){
+        case ' ':case 'k':video.paused?video.play().catch(()=>{}):video.pause();break;
+        case 'arrowleft':case 'j':video.currentTime=Math.max(0,safeTime(video.currentTime)-10);break;
+        case 'arrowright':case 'l':if(Number.isFinite(video.duration))video.currentTime=Math.min(video.duration,safeTime(video.currentTime)+10);break;
+        case 'arrowup':video.volume=Math.min(1,video.volume+.05);video.muted=false;volume.value=video.volume;break;
+        case 'arrowdown':video.volume=Math.max(0,video.volume-.05);volume.value=video.volume;break;
+        case 'm':mute.click();break;
+        case 'f':fullscreen.click();break;
+        case 'n':if(current<episodes.length-1)loadEpisode(current+1,true);break;
+        case 'p':if(current>0)loadEpisode(current-1,true);break;
+        case '[':video.playbackRate=Math.max(.5,video.playbackRate-.25);$('speed').value=String(video.playbackRate);break;
+        case ']':video.playbackRate=Math.min(2,video.playbackRate+.25);$('speed').value=String(video.playbackRate);break;
+        default:if(/^[0-9]$/.test(e.key)&&Number.isFinite(video.duration))video.currentTime=video.duration*Number(e.key)/10;else handled=false;
+      }
+      if(handled)e.preventDefault();
+    });
+    let lastTap=0;
+    video.addEventListener('pointerup',e=>{
+      if(e.pointerType==='mouse')return;
+      const now=Date.now(), rect=video.getBoundingClientRect();
+      if(now-lastTap<350){
+        const left=e.clientX<rect.left+rect.width/3;
+        const right=e.clientX>rect.left+rect.width*2/3;
+        if(left||right){video.currentTime=Math.max(0,Math.min(Number.isFinite(video.duration)?video.duration:Infinity,safeTime(video.currentTime)+(left?-10:10)));$('tapFeedback').textContent=left?'↶ 10s':'10s ↷';setTimeout(()=>$('tapFeedback').textContent='',650)}
+      }
+      lastTap=now;
+    });
+    video.addEventListener('loadedmetadata',renderLibrary);
+    video.addEventListener('ended',renderLibrary);
+    video.addEventListener('pause',renderLibrary);
+    setInterval(()=>{if(!video.paused)renderLibrary()},12000);
+    renderLibrary();
+
+    loadEpisode(Math.max(0, Math.min(episodes.length - 1, Number(saved.lastEpisode) || 0)), false);
+  </script>
+</body>
+</html>
