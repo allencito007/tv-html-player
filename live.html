@@ -1,0 +1,11 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Live TV | Allend TV</title><link rel="stylesheet" href="style.css"></head><body><header><div class="wrap"><div class="brand-motion" id="brandMotion"><img class="brand" alt="Allend TV" src="https://i.postimg.cc/tTDp2BGm/Allend-Video.png"><span class="brand-gradient-glow" aria-hidden="true"></span></div></div></header><nav class="back-row"><a class="back-link" href="index.html" aria-label="Back to Home">
+    <svg width="22" height="22" viewBox="0 0 24 24"
+         fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round"
+         aria-hidden="true">
+        <path d="M19 12H5"></path>
+        <path d="M12 19l-7-7 7-7"></path>
+    </svg>
+</a></nav><main class="wrap"><p class="eyebrow"></p><h1>Live TV</h1><p class="intro"></p><div id="channelGrid" class="poster-grid">
+<button type="button" class="channel-card" data-channel-id="pars-tv" aria-label="Watch Pars TV"><img src="https://www.persianity.com/thumb.php?src=https://www.persiran.com/index_files/channels/parstv.png" alt="Pars TV logo" onerror="this.style.display='none'" loading="lazy"><strong>Pars TV</strong><small>Watch live →</small></button>
+</div><p class="notice" id="emptyChannels" hidden>No channels added yet.</p><section id="livePlayer" hidden><h2 id="channelTitle"></h2><video id="liveVideo" controls playsinline style="display:block;width:100%;aspect-ratio:16/9;background:black;border-radius:12px"></video><p class="muted" id="liveStatus"></p></section><p class="footer"></p></main><script src="site.js"></script><script src="channels.js"></script><script src="https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js"></script><script src="live-player.js"></script></body></html>

@@ -1,0 +1,1 @@
+(function(){var brand=document.getElementById('brandMotion');if(!brand)return;var logo=brand.querySelector('img');brand.style.setProperty('--brand-mask','url("'+logo.src+'")');function animate(){brand.classList.remove('brand-animate');void brand.offsetWidth;brand.classList.add('brand-animate')}animate();setInterval(animate,12000)})();
