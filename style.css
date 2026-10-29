@@ -5,3 +5,13 @@
 .channel-card img{width:100%;max-width:210px;height:110px;object-fit:contain}
 .channel-card strong{font-size:21px}.channel-card small{color:#bda5ff}
 .channel-card:hover,.channel-card:focus-visible{border-color:#c4b5fd;background:#30263e;outline:3px solid rgba(196,181,253,.3)}
+
+@media (orientation: landscape) and (min-width: 480px) {
+  .category-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .category-card {
+    min-height: 205px;
+  }
+}
