@@ -1,13 +1,74 @@
-<video
-  id="videoPlayer"
-  controls
-  playsinline
-  preload="metadata"
-  style="width:100%; aspect-ratio:16/9; background:#000;"
->
-  <source
-    src="https://pl.farsiland.buzz/series/jeyran/02.720.mp4?md5=it_R-cMM8URNLQIbiJ1tnw"
-    type="video/mp4"
-  >
-  Your browser does not support HTML5 video.
-</video>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>AllendTV Player</title>
+
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+    }
+
+    video {
+      display: block;
+      width: 100%;
+      max-height: 100vh;
+      background: #000;
+    }
+
+    #status {
+      padding: 12px;
+      text-align: center;
+      font-size: 16px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <video
+    id="videoPlayer"
+    controls
+    playsinline
+    preload="metadata"
+    width="1280"
+    height="720">
+    <source
+      src="https://pl.farsiland.buzz/series/jeyran/02.720.mp4?md5=it_R-cMM8URNLQIbiJ1tnw"
+      type="video/mp4">
+    Your TV browser does not support HTML5 video.
+  </video>
+
+  <div id="status">Ready to play</div>
+
+  <script>
+    var player = document.getElementById("videoPlayer");
+    var status = document.getElementById("status");
+
+    player.onplaying = function () {
+      status.innerHTML = "Playing";
+    };
+
+    player.onwaiting = function () {
+      status.innerHTML = "Loading video...";
+    };
+
+    player.onerror = function () {
+      status.innerHTML =
+        "Video failed. Check the network request or TV compatibility.";
+    };
+
+    player.onended = function () {
+      status.innerHTML = "Playback finished";
+    };
+  </script>
+
+</body>
+</html>
