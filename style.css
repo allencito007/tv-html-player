@@ -517,3 +517,106 @@ input:focus,
     height: 240px;
   }
 }
+
+.category-grid {
+  gap: 12px;
+}
+
+.category-card {
+  margin: 0;
+}
+
+
+
+
+
+/* ==================================
+   ALLEND TV - CONTINUOUS LOGO ANIMATION
+   Samsung, LG, Roku, Fire TV
+================================== */
+
+/* Disable original shine effect */
+.brand-gradient-glow {
+  display: none !important;
+}
+
+/* Smooth continuous zoom */
+.brand-motion {
+  opacity: 1;
+  overflow: visible;
+
+  -webkit-animation: tvLogoPulse 4s ease-in-out infinite alternate;
+  animation: tvLogoPulse 4s ease-in-out infinite alternate;
+}
+
+/* Older Samsung / WebKit browsers */
+@-webkit-keyframes tvLogoPulse {
+  0% {
+    -webkit-transform: scale(0.96);
+    opacity: 0.85;
+  }
+
+  100% {
+    -webkit-transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Standard browsers */
+@keyframes tvLogoPulse {
+  0% {
+    transform: scale(0.70);
+    opacity: 0.85;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Reduced motion accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .brand-motion {
+    -webkit-animation: none;
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+
+
+
+/* ALLEND TV - ARROW BACK BUTTON */
+
+.back-btn {
+  width: 55px;
+  height: 55px;
+  background: #34264d;
+  color: white;
+  border: 2px solid #a78bfa;
+  border-radius: 12px;
+  font-size: 32px;
+  font-weight: bold;
+  cursor: pointer;
+  text-align: center;
+  padding: 0;
+}
+
+.back-btn:hover,
+.back-btn:focus {
+  background: #6d4caf;
+  border-color: white;
+  outline: 3px solid #c4b5fd;
+  outline-offset: 3px;
+}
+
+/* Shared clickable logo and stable poster sizes on older TV browsers */
+a.brand-motion{cursor:pointer;text-decoration:none;vertical-align:middle}
+a.brand-motion:focus{outline:3px solid #c4b5fd;outline-offset:4px}
+.poster-grid{display:flex;flex-wrap:wrap;gap:20px}
+.poster{flex:0 0 200px;width:200px;max-width:100%}
+.poster img{width:100%;height:290px;object-fit:cover;aspect-ratio:auto}
+@supports(display:grid){.poster-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,200px))}}
+@media(max-width:650px){.poster-grid{gap:12px}.poster{flex:0 0 calc(50% - 6px);width:100%}@supports(display:grid){.poster-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}.poster img{height:240px}}

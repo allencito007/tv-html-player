@@ -141,15 +141,26 @@ body.low-memory .loading-spinner{animation:none;border-color:#a78bfa}
 @media(prefers-reduced-motion:reduce){.brand-motion.brand-animate .brand-gradient-glow{animation:none!important}}
 /* Consistent full-width logo header and separate back row */
 .shell{max-width:none;padding:0}.shell>header{background:#15141b;border-bottom:1px solid #30313c;padding:24px max(28px,calc((100vw - 1100px)/2))}.brand-motion{margin-left:0}.player-back-row{max-width:1100px;margin:auto;padding:13px 0}.player-back-link{color:#c4b5fd;text-decoration:none;font-weight:bold;display:inline-block;padding:8px}.shell>.player-card{max-width:1100px;margin:0 auto 35px}@media(max-width:650px){.shell>header{padding:18px}.player-back-row{padding:10px 12px}.shell>.player-card{margin:0 10px 25px}}
+/* Shared logo dimensions and animation on the series player */
+.shell>header .brand-motion{display:inline-block;width:390px;max-width:85%;margin:0;overflow:visible;text-decoration:none;-webkit-animation:tvLogoPulse 4s ease-in-out infinite alternate;animation:tvLogoPulse 4s ease-in-out infinite alternate}
+.shell>header .brand-motion .logo{display:block;width:100%;height:auto}
+.shell>header .brand-gradient-glow{display:none!important}
+@-webkit-keyframes tvLogoPulse{from{-webkit-transform:scale(.90);opacity:.85}to{-webkit-transform:scale(1);opacity:1}}
+@keyframes tvLogoPulse{from{transform:scale(.90);opacity:.85}to{transform:scale(1);opacity:1}}
+@media(prefers-reduced-motion:reduce){.shell>header .brand-motion{-webkit-animation:none;animation:none}}
 </style>
 </head>
 <body>
 <div class="shell">
 <header>
-<div class="brand-motion" id="brandMotion"><img id="allendLogo" class="logo" alt="Allend"><span class="brand-gradient-glow" aria-hidden="true"></span></div>
+<a class="brand-motion" id="brandMotion" href="index.html" aria-label="Allend TV Home"><img id="allendLogo" class="brand logo" src="https://i.postimg.cc/tTDp2BGm/Allend-Video.png" alt="Allend TV"><span class="brand-gradient-glow" aria-hidden="true"></span></a>
 <div id="logoFallback" class="logo-fallback" style="display:none">▶ Allend</div>
 </header>
-<nav class="player-back-row"><a href="series.html" class="player-back-link">❮ &nbsp; Back to Series</a></nav>
+<nav class="player-back-row"><button class="back-btn" type="button"
+  aria-label="Go back"
+  onclick="history.back()">
+  &#8592;
+</button></nav>
 <div class="player-card">
 <div class="screen" id="screen">
 <video id="video" playsinline webkit-playsinline preload="metadata"></video>
@@ -249,6 +260,7 @@ body.low-memory .loading-spinner{animation:none;border-color:#a78bfa}
 </div>
 </div>
 
+<script src="series.js"></script>
 <script>
 (function(){
 "use strict";
@@ -322,21 +334,27 @@ listen($("screen"),"touchstart",revealControls);
 listen($("screen"),"pointerdown",revealControls);
 listen($("screen"),"focusin",revealControls);
 listen($("screen"),"focusout",function(){setTimeout(revealControls,0)});
-/* Preserve original 52-episode URL pattern */
+/* Series selected from the shared library; default to Jeyran for old bookmarks. */
+var seriesId="jeyran";
+var match=window.location.search.match(/[?&]series=([^&]*)/);
+if(match){try{seriesId=decodeURIComponent(match[1].replace(/\+/g," "))}catch(e){seriesId=match[1]}}
+var allSeries=window.ALLEND_SERIES||[];
+var selectedSeries=null;
+for(var si=0;si<allSeries.length;si++){
+ if(allSeries[si].id===seriesId){selectedSeries=allSeries[si];break}
+}
+if(!selectedSeries){window.location.replace("series.html");return}
+document.title=selectedSeries.title+" | Allend TV";
 var episodes=[];
-for(var i=1;i<=52;i++){
+for(var i=1;i<=selectedSeries.episodes;i++){
  var n=(i<10?"0":"")+i;
- episodes.push({
-  title:"Episode "+i,
-  url:"https://pl.farsiland.buzz/series/jeyran/"+n+
-      ".720.mp4?md5=it_R-cMM8URNLQIbiJ1tnw"
- });
+ episodes.push({title:"Episode "+i,url:selectedSeries.baseUrl+n+selectedSeries.extension+(selectedSeries.token?"?md5="+encodeURIComponent(selectedSeries.token):"")});
 }
 
 var video=$("video"),screen=$("screen"),list=$("episodeList");
 var select=$("episodeSelect");
 var current=0,shuffle=false,lastSave=0;
-var storageKey="jeyran-progress-v1";
+var storageKey=selectedSeries.id+"-progress-v1";
 var saved={};
 try{saved=JSON.parse(localStorage.getItem(storageKey)||"{}")||{}}catch(e){}
 if(!saved.positions)saved.positions={};
