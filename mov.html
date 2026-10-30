@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gorgeous Modern HLS Video Player</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- HLS.js for cross-browser m3u8 support -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at 50% 30%, #000000 0%, #000000 100%);
+        }
+        /* Custom scrollbar and sleek range inputs */
+        input[type=range] {
+            accent-color: #6366f1;
+        }
+        /* Hide controls smoothly when inactive */
+        .hide-cursor {
+            cursor: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-gray-100 flex flex-col items-center justify-center p-4 sm:p-8">
+
+    <!-- Header / Brand -->
+    <div class="mb-6 text-center">
+        <h1 class="text-2xl sm:text-3xl font-bold tracking-tight bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+            
+        </h1>
+        <p class="text-xs sm:text-sm text-gray-400 mt-1"></p>
+    </div>
+
+    <!-- Video Container -->
+    <div id="player-container" class="relative w-full max-w-4xl aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-white/10 group select-none">
+        
+        <!-- Video Element -->
+        <video id="video" class="w-full h-full object-contain cursor-pointer" playsinline></video>
+
+        <!-- Loading Spinner Overlay -->
+        <div id="loading-overlay" class="absolute inset-0 flex flex-col items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-300 pointer-events-none">
+            <div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-3"></div>
+            <span class="text-xs sm:text-sm font-medium tracking-wide text-indigo-200">Buffering Stream...</span>
+        </div>
+
+        <!-- Center Big Play Button (shown initially or paused) -->
+        <div id="center-play-btn" class="absolute inset-0 flex items-center justify-center cursor-pointer bg-black/30 backdrop-blur-[2px] transition-all duration-300 opacity-0 group-hover:opacity-100">
+            <div class="w-20 h-20 rounded-full bg-indigo-600/80 hover:bg-indigo-500 flex items-center justify-center text-white text-2xl shadow-lg shadow-indigo-500/40 transform hover:scale-110 transition-transform">
+                <i class="fa-solid fa-play ml-1"></i>
+            </div>
+        </div>
+
+        <!-- Custom Controls Bar (Glassmorphic) -->
+        <div id="controls-bar" class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/90 via-black/50 to-transparent backdrop-blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col gap-2">
+            
+            <!-- Timeline Scrubber -->
+            <div class="flex items-center gap-3">
+                <input id="seek-bar" type="range" min="0" max="100" value="0" class="w-full h-1.5 bg-white/20 rounded-lg appearance-none cursor-pointer focus:outline-none">
+            </div>
+
+            <!-- Buttons & Info Row -->
+            <div class="flex items-center justify-between text-white text-sm">
+                
+                <!-- Left controls (Play/Pause, Volume, Time) -->
+                <div class="flex items-center gap-4">
+                    <button id="play-pause-btn" class="hover:text-indigo-400 transition-colors w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10">
+                        <i id="play-icon" class="fa-solid fa-play text-lg"></i>
+                    </button>
+
+                    <!-- Volume Control -->
+                    <div class="flex items-center gap-2 group/vol">
+                        <button id="mute-btn" class="hover:text-indigo-400 transition-colors w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10">
+                            <i id="volume-icon" class="fa-solid fa-volume-high"></i>
+                        </button>
+                        <input id="volume-slider" type="range" min="0" max="1" step="0.05" value="1" class="w-16 sm:w-20 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer transition-all">
+                    </div>
+
+                    <!-- Time Display -->
+                    <div class="text-xs sm:text-sm font-medium text-gray-300 tabular-nums">
+                        <span id="current-time">0:00</span> / <span id="duration">0:00</span>
+                    </div>
+                </div>
+
+                <!-- Right controls (Quality / Status indicator & Fullscreen) -->
+                <div class="flex items-center gap-3">
+                    <div class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        HLS Live Stream
+                    </div>
+
+                    <button id="fullscreen-btn" class="hover:text-indigo-400 transition-colors w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10">
+                        <i id="fullscreen-icon" class="fa-solid fa-expand"></i>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Error Fallback Notice (Hidden by default) -->
+    <div id="error-box" class="hidden mt-4 max-w-xl w-full p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-sm text-center">
+        <i class="fa-solid fa-triangle-exclamation mr-2"></i> Stream loading encountered an error or token expiration. Please check connection or reload.
+    </div>
+
+   
+
+    <!-- Video Player JavaScript Logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const video = document.getElementById('video');
+            const playerContainer = document.getElementById('player-container');
+            const playPauseBtn = document.getElementById('play-pause-btn');
+            const centerPlayBtn = document.getElementById('center-play-btn');
+            const playIcon = document.getElementById('play-icon');
+            const seekBar = document.getElementById('seek-bar');
+            const currentTimeEl = document.getElementById('current-time');
+            const durationEl = document.getElementById('duration');
+            const muteBtn = document.getElementById('mute-btn');
+            const volumeSlider = document.getElementById('volume-slider');
+            const volumeIcon = document.getElementById('volume-icon');
+            const fullscreenBtn = document.getElementById('fullscreen-btn');
+            const fullscreenIcon = document.getElementById('fullscreen-icon');
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const errorBox = document.getElementById('error-box');
+
+            const videoSrc = 'https://hls.shegu.net/m3u8_proxy/video/38288065/video_360p.m3u8?KEY2=1793424754&KEY0=2&KEY7=23&KEY8=m13951804&sign=htm_eJVLARFrYj7UG5vYfA';
+
+            // Initialize HLS.js or Native HLS
+            if (Hls.isSupported()) {
+                const hls = new Hls({
+                    maxBufferLength: 30,
+                    maxMaxBufferLength: 60
+                });
+                hls.loadSource(videoSrc);
+                hls.attachMedia(video);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    loadingOverlay.style.opacity = '0';
+                    setTimeout(() => loadingOverlay.style.display = 'none', 300);
+                });
+                hls.on(Hls.Events.ERROR, (event, data) => {
+                    if (data.fatal) {
+                        loadingOverlay.style.display = 'none';
+                        errorBox.classList.remove('hidden');
+                    }
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                // Native HLS support (Safari)
+                video.src = videoSrc;
+                video.addEventListener('loadedmetadata', () => {
+                    loadingOverlay.style.display = 'none';
+                });
+            } else {
+                loadingOverlay.style.display = 'none';
+                errorBox.classList.remove('hidden');
+            }
+
+            // Play / Pause toggle function
+            function togglePlay() {
+                if (video.paused) {
+                    video.play();
+                } else {
+                    video.pause();
+                }
+            }
+
+            video.addEventListener('click', togglePlay);
+            playPauseBtn.addEventListener('click', togglePlay);
+            centerPlayBtn.addEventListener('click', togglePlay);
+
+            // Update UI on play/pause
+            video.addEventListener('play', () => {
+                playIcon.className = 'fa-solid fa-pause text-lg';
+                centerPlayBtn.style.opacity = '0';
+                centerPlayBtn.style.pointerEvents = 'none';
+            });
+
+            video.addEventListener('pause', () => {
+                playIcon.className = 'fa-solid fa-play text-lg';
+                centerPlayBtn.style.opacity = '1';
+                centerPlayBtn.style.pointerEvents = 'auto';
+            });
+
+            // Buffering events
+            video.addEventListener('waiting', () => {
+                loadingOverlay.style.display = 'flex';
+                loadingOverlay.style.opacity = '1';
+            });
+
+            video.addEventListener('playing', () => {
+                loadingOverlay.style.opacity = '0';
+                setTimeout(() => loadingOverlay.style.display = 'none', 300);
+            });
+
+            // Format time helper (seconds -> MM:SS)
+            function formatTime(seconds) {
+                if (isNaN(seconds)) return "0:00";
+                const mins = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+            }
+
+            // Update time & seek bar
+            video.addEventListener('loadedmetadata', () => {
+                durationEl.textContent = formatTime(video.duration);
+            });
+
+            video.addEventListener('timeupdate', () => {
+                currentTimeEl.textContent = formatTime(video.currentTime);
+                if (video.duration) {
+                    const percent = (video.currentTime / video.duration) * 100;
+                    seekBar.value = percent;
+                }
+            });
+
+            // Seek functionality
+            seekBar.addEventListener('input', () => {
+                if (video.duration) {
+                    const seekTime = (seekBar.value / 100) * video.duration;
+                    video.currentTime = seekTime;
+                }
+            });
+
+            // Volume control
+            volumeSlider.addEventListener('input', (e) => {
+                video.volume = e.target.value;
+                video.muted = (video.volume === 0);
+                updateVolumeIcon();
+            });
+
+            muteBtn.addEventListener('click', () => {
+                video.muted = !video.muted;
+                if (video.muted) {
+                    volumeSlider.value = 0;
+                } else {
+                    volumeSlider.value = video.volume || 0.5;
+                    video.volume = volumeSlider.value;
+                }
+                updateVolumeIcon();
+            });
+
+            function updateVolumeIcon() {
+                if (video.muted || video.volume === 0) {
+                    volumeIcon.className = 'fa-solid fa-volume-xmark text-red-400';
+                } else if (video.volume < 0.5) {
+                    volumeIcon.className = 'fa-solid fa-volume-low';
+                } else {
+                    volumeIcon.className = 'fa-solid fa-volume-high';
+                }
+            }
+
+            // Fullscreen toggle
+            fullscreenBtn.addEventListener('click', () => {
+                if (!document.fullscreenElement) {
+                    playerContainer.requestFullscreen().catch(err => {
+                        console.error("Error attempting to enable fullscreen:", err);
+                    });
+                } else {
+                    document.exitFullscreen();
+                }
+            });
+
+            document.addEventListener('fullscreenchange', () => {
+                if (document.fullscreenElement) {
+                    fullscreenIcon.className = 'fa-solid fa-compress';
+                } else {
+                    fullscreenIcon.className = 'fa-solid fa-expand';
+                }
+            });
+
+            // Auto-hide controls in player after inactivity
+            let hideTimeout;
+            playerContainer.addEventListener('mousemove', () => {
+                playerContainer.classList.remove('hide-cursor');
+                clearTimeout(hideTimeout);
+                hideTimeout = setTimeout(() => {
+                    if (!video.paused) {
+                        playerContainer.classList.add('hide-cursor');
+                    }
+                }, 3000);
+            });
+        });
+    </script>
+</body>
+</html>
