@@ -1,801 +1,1681 @@
 
+
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
 <meta name="referrer" content="no-referrer">
+
 <meta charset="utf-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+
 <title>Jeyran | Allend TV</title>
+
 <style>
+
 * {box-sizing:border-box}
+
 html,body{margin:0;padding:0;background:#101114;color:#f7f7fa;font-family:Arial,sans-serif}
+
 body{font-size:16px}
+
 .shell{max-width:1050px;margin:0 auto;padding:18px}
+
 header{padding:6px 0 20px}
+
 .logo{display:block;width:390px;max-width:85%;height:auto}
+
 .logo-fallback{font-size:32px;font-weight:bold;color:#b69aff}
+
 .player-card{background:#191b21;border:1px solid #30323b;border-radius:12px;overflow:hidden}
+
 .screen{position:relative;background:#000;width:100%;height:0;padding-bottom:56.25%;overflow:hidden}
+
 .screen video{position:absolute;left:0;top:0;width:100%;height:100%;background:#000}
+
 .watermark{position:absolute;left:14px;right:auto;top:14px;width:230px;max-width:34%;opacity:.55;z-index:10;pointer-events:none}
+
 .video-controls{position:absolute;left:0;right:0;bottom:0;z-index:20;background:rgba(0,0,0,.75);padding:10px 8px;display:table;width:100%}
+
 .video-controls button{display:inline-block;vertical-align:middle;background:transparent;border:0;color:#fff;font-size:22px;padding:8px}
+
 .video-controls input{vertical-align:middle}
+
 #seek{width:35%}
+
 #volume{width:65px}
+
 #timeDisplay{font-size:12px}
+
 .toolbar{padding:12px;background:#15161d;border-bottom:1px solid #30323b}
+
 button,select,input[type=text]{font-family:Arial,sans-serif;font-size:15px;background:#252731;color:#fff;border:1px solid #41434f;border-radius:8px;padding:11px;min-height:43px;margin:3px}
+
 button{cursor:pointer}
+
 button:focus,select:focus,input:focus{outline:3px solid #c4b5fd}
+
 button.primary{background:#a78bfa;color:#171222}
+
 button:disabled{opacity:.4}
+
 .status{padding:12px 16px;color:#a5a8b2;font-size:13px}
+
 .status.error{color:#fca5a5}
+
 .details{padding:18px}
+
 h2{font-size:22px;margin:0 0 8px}
+
 .note{font-size:13px;color:#a5a8b2;margin:8px 0 16px}
+
 .controls{margin:15px 0}
+
 .controls select{min-width:150px}
+
 .library-head{margin-top:24px;padding-top:15px;border-top:1px solid #30323b}
+
 .library-tools{margin:12px 0}
+
 .library-tools input{width:180px;max-width:100%}
+
 .progress-track{height:7px;background:#30313b;border-radius:8px;overflow:hidden;margin:14px 0}
+
 #seriesProgress{width:0;height:100%;background:#a78bfa}
+
 .episode-list{overflow:hidden}
+
 .episode{float:left;width:48%;margin:1%;background:#252731;border:1px solid #41434f;border-radius:10px;padding:12px;min-height:86px;cursor:pointer}
+
 .episode.active{border-color:#a78bfa;background:#2b2538}
+
 .episode.watched{border-color:#eab308;background:#3b3219}
+
 .episode.watched .episode-title{text-decoration:line-through}
+
 .episode-num{display:inline-block;background:#34313f;padding:10px;border-radius:8px;margin-right:8px;font-weight:bold}
+
 .episode.watched .episode-num{background:#eab308;color:#211900}
+
 .episode-title{display:inline-block;font-weight:bold}
+
 .watch-toggle{display:block;font-size:12px;min-height:30px;padding:5px 8px;margin-top:7px}
+
 .episode[hidden],.continue-panel[hidden]{display:none}
+
 .continue-panel{padding:14px;background:#252036;border:1px solid #6550a2;border-radius:10px;margin:15px 0}
+
 .extras{clear:both;padding-top:20px}
+
 .help{margin-top:20px;padding:12px;border:1px solid #30323b;border-radius:10px;color:#a5a8b2;font-size:13px}
+
 body.theater{background:#000}
+
 .screen.pseudo-fullscreen{position:fixed!important;left:0!important;top:0!important;width:100%!important;height:100%!important;padding:0!important;z-index:99999!important;background:#000}
+
 .screen.pseudo-fullscreen video{width:100%;height:100%}
+
 .screen.pseudo-fullscreen .watermark{top:20px;left:20px;right:auto;width:260px}
+
 body.fullscreen-active{overflow:hidden}
+
 .screen:fullscreen,.screen:-webkit-full-screen{width:100%;height:100%;padding:0;background:#000}
+
 .screen:fullscreen video,.screen:-webkit-full-screen video{width:100%;height:100%}
+
 .screen:fullscreen .watermark,.screen:-webkit-full-screen .watermark{width:200px;top:20px;left:20px;right:auto}
+
 @media(max-width:600px){
+
 .shell{padding:10px}
+
 .episode{float:none;width:100%;margin:8px 0}
+
 .details{padding:12px}
+
 #volume{display:none}
+
 #seek{width:28%}
+
 .video-controls button{padding:5px;font-size:18px}
+
 .watermark{width:145px;max-width:34%}
+
 }
+
 /* Responsive player controls and TV focus */
+
 .video-controls{display:flex;align-items:center;gap:4px;flex-wrap:wrap;transition:opacity .25s ease,visibility .25s ease;}
+
 .video-controls button{flex:0 0 auto;min-width:38px;min-height:40px;margin:0;}
+
 #seek{flex:1 1 130px;min-width:55px;width:auto;accent-color:#a78bfa}
+
 #volume{flex:0 0 65px;accent-color:#a78bfa}
+
 #timeDisplay{white-space:nowrap;font-variant-numeric:tabular-nums}
+
 .screen.controls-hidden .video-controls{opacity:0;visibility:hidden;pointer-events:none}
+
 .screen.controls-hidden{cursor:none}
-.screen:focus-within .video-controls{opacity:1;visibility:visible;pointer-events:auto}
+
+.screen:not(.controls-hidden):focus-within .video-controls{opacity:1;visibility:visible;pointer-events:auto}
+
 .episode-overlay{position:absolute;left:20px;top:20px;z-index:12;padding:10px 15px;background:rgba(0,0,0,.72);border-left:3px solid #a78bfa;border-radius:7px;font-weight:bold;opacity:0;transition:opacity .3s;pointer-events:none}
+
 .episode-overlay.visible{opacity:1}
+
 button:focus-visible,select:focus-visible,input:focus-visible,.episode:focus-visible{outline:3px solid #c4b5fd;outline-offset:3px}
+
 .episode:focus{border-color:#c4b5fd}
+
 @media(max-width:600px){
+
 .video-controls{padding:7px 5px;gap:2px}
+
 .video-controls button{font-size:17px;min-width:31px;padding:5px;min-height:36px}
+
 #timeDisplay{font-size:10px}
+
 #seek{flex-basis:75px}
+
 #volume{display:none}
+
 .episode-overlay{left:10px;top:10px;font-size:12px;padding:7px 10px}
+
 .toolbar{display:flex;flex-wrap:wrap;gap:3px}
+
 .toolbar button,.toolbar select{font-size:13px;min-height:40px}
+
 .controls{display:flex;flex-wrap:wrap;align-items:center;gap:5px}
+
 .controls select{flex:1;min-width:110px}
+
 }
+
 @media(min-width:1200px){.shell{max-width:1200px}.video-controls button{font-size:25px;min-width:48px}.episode{min-height:94px}}
+
 @media(prefers-reduced-motion:reduce){.video-controls,.episode-overlay{transition:none}}
+
+.skip-intro{position:absolute;right:18px;bottom:95px;z-index:24;background:rgba(18,18,24,.9);border:1px solid #a78bfa;color:#fff;border-radius:9px;padding:12px 18px;cursor:pointer}
+
+.skip-intro[hidden]{display:none!important}
+
 /* TV-friendly additions: no external dependencies */
+
 .shell{padding-left:max(18px,3%);padding-right:max(18px,3%)}
+
 .screen .loading-spinner{display:none;position:absolute;left:50%;top:46%;width:46px;height:46px;margin:-23px;border:5px solid rgba(255,255,255,.25);border-top-color:#b69aff;border-radius:50%;z-index:15;animation:spin 1s linear infinite;pointer-events:none}
+
 .screen.is-loading .loading-spinner{display:block}
+
 @keyframes spin{to{transform:rotate(360deg)}}
+
 .next-countdown{display:none;position:absolute;bottom:85px;right:18px;background:rgba(15,12,24,.95);border:1px solid #a78bfa;border-radius:10px;padding:15px;z-index:25;max-width:90%}
+
 .next-countdown.visible{display:block}
+
 .next-countdown button{margin-top:8px}
+
 .settings-panel{margin:16px 0;padding:14px;border:1px solid #41434f;border-radius:10px;background:#20212b}
+
 .settings-panel label{display:inline-block;margin:8px 12px 8px 0}
+
 .settings-panel select{max-width:100%}
+
 .recent-list button{margin:4px}
+
 button:focus,select:focus,input:focus,.episode:focus{outline:3px solid #c4b5fd!important;outline-offset:2px}
+
 body.low-memory *,body.low-memory *:before,body.low-memory *:after{animation:none!important;transition:none!important}
+
 body.low-memory .loading-spinner{animation:none;border-color:#a78bfa}
+
 @media(max-width:600px){.shell{padding-left:12px;padding-right:12px}.next-countdown{bottom:100px;right:8px}.video-controls{justify-content:center}.watermark{max-width:28%}}
+
 @media(min-width:1400px){.shell{max-width:1280px}}
 
+
+
 /* Elegant single gradient glow travels from A to the play icon. */
+
 .brand-motion {
-  position: relative;
-  display: inline-block;
-  width: 390px;
-  max-width: 85%;
-  vertical-align: middle;
-  overflow: hidden;
-  margin-left: 15px;
+
+  position: relative;
+
+  display: inline-block;
+
+  width: 390px;
+
+  max-width: 85%;
+
+  vertical-align: middle;
+
+  overflow: hidden;
+
+  margin-left: 15px;
+
 }
+
 .brand-motion .logo{display:block;width:100%;max-width:100%;position:relative;z-index:1}
+
 .brand-gradient-glow{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;
- background:linear-gradient(105deg,transparent 0%,rgba(167,92,255,.08) 30%,rgba(234,213,255,.9) 49%,rgba(167,92,255,.4) 57%,transparent 75%);
- background-size:260% 100%;
- -webkit-mask-image:var(--brand-mask);mask-image:var(--brand-mask);
- -webkit-mask-size:100% 100%;mask-size:100% 100%;
- -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+
+ background:linear-gradient(105deg,transparent 0%,rgba(167,92,255,.08) 30%,rgba(234,213,255,.9) 49%,rgba(167,92,255,.4) 57%,transparent 75%);
+
+ background-size:260% 100%;
+
+ -webkit-mask-image:var(--brand-mask);mask-image:var(--brand-mask);
+
+ -webkit-mask-size:100% 100%;mask-size:100% 100%;
+
+ -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+
 }
+
 .brand-motion.brand-animate .brand-gradient-glow{animation:brandGradient 4s ease-in-out 1}
+
 @keyframes brandGradient{0%,8%{opacity:0;background-position:100% 0}15%{opacity:.9}75%{opacity:.85}85%,100%{opacity:0;background-position:0% 0}}
+
 @media(max-width:600px){.brand-motion{width:310px;max-width:88%}}
+
 @media(prefers-reduced-motion:reduce){.brand-motion.brand-animate .brand-gradient-glow{animation:none!important}}
+
 /* Consistent full-width logo header and separate back row */
+
 .shell{max-width:none;padding:0}.shell>header{background:#15141b;border-bottom:1px solid #30313c;padding:24px max(28px,calc((100vw - 1100px)/2))}.brand-motion{margin-left:0}.player-back-row{max-width:1100px;margin:auto;padding:13px 0}.player-back-link{color:#c4b5fd;text-decoration:none;font-weight:bold;display:inline-block;padding:8px}.shell>.player-card{max-width:1100px;margin:0 auto 35px}@media(max-width:650px){.shell>header{padding:18px}.player-back-row{padding:10px 12px}.shell>.player-card{margin:0 10px 25px}}
+
 /* Shared logo dimensions and animation on the series player */
+
 .shell>header .brand-motion{display:inline-block;width:390px;max-width:85%;margin:0;overflow:visible;text-decoration:none;-webkit-animation:tvLogoPulse 4s ease-in-out infinite alternate;animation:tvLogoPulse 4s ease-in-out infinite alternate}
+
 .shell>header .brand-motion .logo{display:block;width:100%;height:auto}
+
 .shell>header .brand-gradient-glow{display:none!important}
+
 @-webkit-keyframes tvLogoPulse{from{-webkit-transform:scale(.90);opacity:.85}to{-webkit-transform:scale(1);opacity:1}}
+
 @keyframes tvLogoPulse{from{transform:scale(.90);opacity:.85}to{transform:scale(1);opacity:1}}
+
 @media(prefers-reduced-motion:reduce){.shell>header .brand-motion{-webkit-animation:none;animation:none}}
+
 </style>
+
 </head>
+
 <body>
+
 <div class="shell">
+
 <header>
+
 <a class="brand-motion" id="brandMotion" href="index.html" aria-label="Allend TV Home"><img id="allendLogo" class="brand logo" src="https://i.postimg.cc/tTDp2BGm/Allend-Video.png" alt="Allend TV"><span class="brand-gradient-glow" aria-hidden="true"></span></a>
+
 <div id="logoFallback" class="logo-fallback" style="display:none">▶ Allend</div>
+
 </header>
+
 <nav class="player-back-row"><button class="back-btn" type="button"
-  aria-label="Go back"
-  onclick="history.back()">
-  &#8592;
+
+  aria-label="Go back"
+
+  onclick="history.back()">
+
+  &#8592;
+
 </button></nav>
+
 <div class="player-card">
+
 <div class="screen" id="screen">
-<video id="video" playsinline webkit-playsinline preload="metadata"></video>
+
+<video id="video" playsinline webkit-playsinline preload="auto"></video>
+
 <img id="allendWatermark" class="watermark" alt="Allend">
+
 <div class="loading-spinner" id="loadingSpinner" aria-label="Loading video"></div>
+
 <div id="nextCountdown" class="next-countdown"><strong id="nextCountdownText"></strong><div><button id="playNextNow" class="primary">Play now</button><button id="cancelNext">Cancel</button></div></div>
+
 <div id="episodeOverlay" class="episode-overlay" aria-live="polite"></div>
+
+<button id="skipIntro" class="skip-intro" type="button" hidden>⏭ Skip Intro</button>
+
 <div class="video-controls">
+
 <button id="playerPrev" type="button" aria-label="Previous episode" title="Previous episode">⏮</button>
+
 <button id="playPause" type="button" aria-label="Play or pause">▶</button>
+
 <button id="playerNext" type="button" aria-label="Next episode" title="Next episode">⏭</button>
+
 <span id="timeDisplay">0:00 / 0:00</span>
+
 <input id="seek" type="range" min="0" max="1000" value="0">
+
 <button id="mute" type="button">🔊</button>
+
 <input id="volume" type="range" min="0" max="1" step=".05" value="1">
+
 <button id="fullscreen" type="button">⛶</button>
-</div>
-</div>
-<div class="toolbar">
-<button id="back10">↶ 10s</button>
-<button id="forward10">10s ↷</button>
-<label>Speed
-<select id="speed">
-<option value=".5">0.5×</option>
-<option value=".75">0.75×</option>
-<option value="1" selected>1×</option>
-<option value="1.25">1.25×</option>
-<option value="1.5">1.5×</option>
-<option value="1.75">1.75×</option>
-<option value="2">2×</option>
-</select>
-</label>
-<button id="pip">▣ Mini player</button>
-<button id="cinema">☾ Theater</button>
-<button id="loop">↻ Loop off</button>
-<button id="shuffle">⤨ Shuffle off</button>
-<button id="screenshot">▧ Snapshot</button>
-<label>Quality <select id="qualitySelect"><option value="auto">Original (720p)</option></select></label>
-<label>Subtitles <select id="subtitleSelect"><option value="off">Off</option></select></label>
-</div>
-<div id="status" class="status">Choose an episode and press Play.</div>
-<div class="details">
-<h2 id="nowPlaying">Episode 1</h2>
-<p class="note">Select an episode or use the navigation buttons.</p>
-<label><input id="autoNext" type="checkbox" checked> Play next episode automatically</label>
-<div class="controls">
-<button id="prev">← Previous</button>
-<select id="episodeSelect"></select>
-<button id="next" class="primary">Next episode →</button>
-</div>
-<div class="settings-panel">
-<strong>Player settings</strong><div>
-<label><input id="settingAutohide" type="checkbox" checked> Auto-hide controls</label>
-<label><input id="settingCountdown" type="checkbox" checked> Next episode countdown</label>
-<label><input id="settingLowMemory" type="checkbox"> Low-memory TV mode</label>
-<label>Countdown <select id="settingSeconds"><option value="5">5 seconds</option><option value="10" selected>10 seconds</option><option value="15">15 seconds</option></select></label>
-</div><p class="note">Preferences are saved on this device. Quality choices and subtitles appear only when alternate streams or subtitle files are provided.</p>
-</div>
-<div class="library-head">
-<strong id="libraryStats">Your library</strong>
-<p class="note">Yellow = watched · Progress saved automatically</p>
-<div class="library-tools">
-<input id="episodeSearch" type="text" placeholder="Search episodes">
-<select id="filterEpisodes">
-<option value="all">All episodes</option>
-<option value="unwatched">Unwatched</option>
-<option value="watched">Watched</option>
-<option value="progress">In progress</option>
-</select>
-<select id="sortEpisodes">
-<option value="asc">First to last</option>
-<option value="desc">Last to first</option>
-</select>
-</div>
-</div>
-<div class="progress-track"><div id="seriesProgress"></div></div>
-<div id="continuePanel" class="continue-panel" hidden>
-<strong>▶ Continue watching</strong>
-<p id="continueText" class="note"></p>
-<button id="continueButton" class="primary">Resume ▶</button>
-</div>
-<div class="library-head"><strong>Recently watched</strong><div id="recentList" class="recent-list"></div></div>
-<div id="episodeList" class="episode-list"></div>
-<div class="extras">
-<button id="markAll">✓ Mark all watched</button>
-<button id="clearWatched">Clear watched</button>
-<button id="exportData">Export history</button>
-<button id="importButton">Import history</button>
-<input id="importData" type="file" accept=".json,application/json" style="display:none">
-<button id="resetProgress">Reset progress</button>
-</div>
-<details class="help">
-<summary>Keyboard and TV controls</summary>
-<p>Tab / TV arrows: Navigate controls · Enter: Select · Space / TV Play: Play/Pause · F: Fullscreen · M: Mute · N/P or TV Next/Previous: Switch episodes · Left/Right outside controls: Seek 10 seconds · Back: Exit fullscreen when supported.</p>
-</details>
-</div>
-</div>
+
 </div>
 
+</div>
+
+<div class="toolbar">
+
+<button id="back10">↶ 10s</button>
+
+<button id="forward10">10s ↷</button>
+
+<label>Speed
+
+<select id="speed">
+
+<option value=".5">0.5×</option>
+
+<option value=".75">0.75×</option>
+
+<option value="1" selected>1×</option>
+
+<option value="1.25">1.25×</option>
+
+<option value="1.5">1.5×</option>
+
+<option value="1.75">1.75×</option>
+
+<option value="2">2×</option>
+
+</select>
+
+</label>
+
+<button id="pip">▣ Mini player</button>
+
+<button id="cinema">☾ Theater</button>
+
+<button id="loop">↻ Loop off</button>
+
+<button id="shuffle">⤨ Shuffle off</button>
+
+<button id="screenshot">▧ Snapshot</button>
+
+<label>Quality <select id="qualitySelect"><option value="auto">Original (720p)</option></select></label>
+
+<label>Subtitles <select id="subtitleSelect"><option value="off">Off</option></select></label>
+
+</div>
+
+<div id="status" class="status">Choose an episode and press Play.</div>
+
+<div class="details">
+
+<h2 id="nowPlaying">Episode 1</h2>
+
+<p class="note">Select an episode or use the navigation buttons.</p>
+
+<label><input id="autoNext" type="checkbox" checked> Play next episode automatically</label>
+
+<div class="controls">
+
+<button id="prev">← Previous</button>
+
+<select id="episodeSelect"></select>
+
+<button id="next" class="primary">Next episode →</button>
+
+<button id="restartEpisode" type="button">↺ Watch From Beginning</button>
+
+</div>
+
+<div class="settings-panel">
+
+<strong>Player settings</strong><div>
+
+<label><input id="settingAutohide" type="checkbox" checked> Auto-hide controls</label>
+
+<label><input id="settingCountdown" type="checkbox" checked> Next episode countdown</label>
+
+<label><input id="settingLowMemory" type="checkbox"> Low-memory TV mode</label>
+
+<label>Countdown <select id="settingSeconds"><option value="5">5 seconds</option><option value="10" selected>10 seconds</option><option value="15">15 seconds</option></select></label>
+
+</div><p class="note">Preferences are saved on this device. Quality choices and subtitles appear only when alternate streams or subtitle files are provided.</p>
+
+</div>
+
+<div class="library-head">
+
+<strong id="libraryStats">Your library</strong>
+
+<p class="note">Yellow = watched · Progress saved automatically</p>
+
+<div class="library-tools">
+
+<input id="episodeSearch" type="text" placeholder="Search episodes">
+
+<select id="filterEpisodes">
+
+<option value="all">All episodes</option>
+
+<option value="unwatched">Unwatched</option>
+
+<option value="watched">Watched</option>
+
+<option value="progress">In progress</option>
+
+</select>
+
+<select id="sortEpisodes">
+
+<option value="asc">First to last</option>
+
+<option value="desc">Last to first</option>
+
+</select>
+
+</div>
+
+</div>
+
+<div class="progress-track"><div id="seriesProgress"></div></div>
+
+<div id="continuePanel" class="continue-panel" hidden>
+
+<strong>▶ Continue watching</strong>
+
+<p id="continueText" class="note"></p>
+
+<button id="continueButton" class="primary">Resume ▶</button>
+
+</div>
+
+<div class="library-head"><strong>Recently watched</strong><div id="recentList" class="recent-list"></div></div>
+
+<div id="episodeList" class="episode-list"></div>
+
+<div class="extras">
+
+<button id="markAll">✓ Mark all watched</button>
+
+<button id="clearWatched">Clear watched</button>
+
+<button id="exportData">Export history</button>
+
+<button id="importButton">Import history</button>
+
+<input id="importData" type="file" accept=".json,application/json" style="display:none">
+
+<button id="resetProgress">Reset progress</button>
+
+</div>
+
+<details class="help">
+
+<summary>Keyboard and TV controls</summary>
+
+<p>Tab / TV arrows: Navigate controls · Enter: Select · Space / TV Play: Play/Pause · F: Fullscreen · M: Mute · N/P or TV Next/Previous: Switch episodes · Left/Right outside controls: Seek 10 seconds · Back: Exit fullscreen when supported.</p>
+
+</details>
+
+</div>
+
+</div>
+
+</div>
+
+
+<script src="tokens.js"></script>
 <script src="series.js"></script>
+
 <script>
+
 (function(){
+
 "use strict";
+
 function $(id){return document.getElementById(id)}
+
 function listen(el,name,fn){
- if(el.addEventListener){el.addEventListener(name,fn,false)}
- else if(el.attachEvent){el.attachEvent("on"+name,fn)}
+
+ if(el.addEventListener){el.addEventListener(name,fn,false)}
+
+ else if(el.attachEvent){el.attachEvent("on"+name,fn)}
+
 }
+
 function hasClass(el,name){
- return (" "+el.className+" ").indexOf(" "+name+" ")!==-1
+
+ return (" "+el.className+" ").indexOf(" "+name+" ")!==-1
+
 }
+
 function addClass(el,name){
- if(!hasClass(el,name))el.className+=" "+name
+
+ if(!hasClass(el,name))el.className+=" "+name
+
 }
+
 function removeClass(el,name){
- el.className=(" "+el.className+" ").replace(" "+name+" "," ").replace(/^\s+|\s+$/g,"")
+
+ el.className=(" "+el.className+" ").replace(" "+name+" "," ").replace(/^\s+|\s+$/g,"")
+
 }
+
 function toggleClass(el,name,on){
- if(on)addClass(el,name);else removeClass(el,name)
+
+ if(on)addClass(el,name);else removeClass(el,name)
+
 }
+
 function text(el,value){
- if(typeof el.textContent!=="undefined")el.textContent=value;
- else el.innerText=value
+
+ if(typeof el.textContent!=="undefined")el.textContent=value;
+
+ else el.innerText=value
+
 }
+
 function fmt(n){
- if(!isFinite(n)||n<0)return "0:00";
- n=Math.floor(n);
- var seconds=n%60;
- return Math.floor(n/60)+":"+(seconds<10?"0":"")+seconds
+
+ if(!isFinite(n)||n<0)return "0:00";
+
+ n=Math.floor(n);
+
+ var seconds=n%60;
+
+ return Math.floor(n/60)+":"+(seconds<10?"0":"")+seconds
+
 }
+
 function setStatus(message,error){
- text($("status"),message);
- toggleClass($("status"),"error",!!error)
+
+ text($("status"),message);
+
+ toggleClass($("status"),"error",!!error)
+
 }
+
+
 
 /* Embedded logo and watermark */
+
 var logoURL='https://i.postimg.cc/tTDp2BGm/Allend-Video.png';
+
 var watermarkURL=logoURL;
+
 $("allendLogo").src=logoURL;
+
 $("allendWatermark").src=watermarkURL;
+
 $("allendLogo").onerror=function(){
- $("allendLogo").style.display="none";
- $("logoFallback").style.display="block"
+
+ $("allendLogo").style.display="none";
+
+ $("logoFallback").style.display="block"
+
 };
+
 $("allendWatermark").onerror=function(){
- var span=document.createElement("span");
- span.style.cssText="position:absolute;left:15px;right:auto;top:15px;opacity:.35;color:white;font-size:22px;font-weight:bold;z-index:10;pointer-events:none";
- text(span,"Allend");
- $("screen").appendChild(span);
- $("allendWatermark").style.display="none"
+
+ var span=document.createElement("span");
+
+ span.style.cssText="position:absolute;left:15px;right:auto;top:15px;opacity:.35;color:white;font-size:22px;font-weight:bold;z-index:10;pointer-events:none";
+
+ text(span,"Allend");
+
+ $("screen").appendChild(span);
+
+ $("allendWatermark").style.display="none"
+
 };
+
+
 
 /* Control visibility and episode title overlay */
+
 var controlsTimer=null,overlayTimer=null;
+
 function revealControls(){
- removeClass($("screen"),"controls-hidden");
- if(controlsTimer)clearTimeout(controlsTimer);
- if(!$("video").paused && (!$("settingAutohide") || $("settingAutohide").checked)){controlsTimer=setTimeout(function(){
-  var active=document.activeElement;
-  if($("video").paused||($("screen").contains(active)&&active!==$("video")))return;
-  addClass($("screen"),"controls-hidden")
- },3200)}
+
+ removeClass($("screen"),"controls-hidden");
+
+ if(controlsTimer)clearTimeout(controlsTimer);
+
+ if(!$("video").paused && (!$("settingAutohide") || $("settingAutohide").checked)){
+
+  controlsTimer=setTimeout(function(){
+
+   if(!$("video").paused){
+
+    var active=document.activeElement;
+
+    if(active && $("screen").contains(active) && active!==$("video") && active.blur)active.blur();
+
+    addClass($("screen"),"controls-hidden");
+
+   }
+
+  },3200);
+
+ }
+
 }
+
+function settleControls(){
+
+ var active=document.activeElement;
+
+ if(active && $("screen").contains(active) && active!==$("video") && active.blur)active.blur();
+
+ revealControls();
+
+}
+
 function showEpisodeOverlay(title){
- var el=$("episodeOverlay");text(el,"Now playing · "+title);addClass(el,"visible");
- if(overlayTimer)clearTimeout(overlayTimer);
- overlayTimer=setTimeout(function(){removeClass(el,"visible")},2800)
+
+ var el=$("episodeOverlay");text(el,"Now playing · "+title);addClass(el,"visible");
+
+ if(overlayTimer)clearTimeout(overlayTimer);
+
+ overlayTimer=setTimeout(function(){removeClass(el,"visible")},2800)
+
 }
+
 listen($("screen"),"mousemove",revealControls);
+
 listen($("screen"),"touchstart",revealControls);
+
 listen($("screen"),"pointerdown",revealControls);
+
 listen($("screen"),"focusin",revealControls);
+
 listen($("screen"),"focusout",function(){setTimeout(revealControls,0)});
+
 /* Series selected from the shared library; default to Jeyran for old bookmarks. */
+
 var seriesId="jeyran";
+
 var match=window.location.search.match(/[?&]series=([^&]*)/);
-if(match){try{seriesId=decodeURIComponent(match[1].replace(/\+/g," "))}catch(e){seriesId=match[1]}}
+
+if(match){try{seriesId=decodeURIComponent(match[1].replace(/**\\+**/g," "))}catch(e){seriesId=match[1]}}
+
 var allSeries=window.ALLEND_SERIES||[];
+
 var selectedSeries=null;
+
 for(var si=0;si<allSeries.length;si++){
- if(allSeries[si].id===seriesId){selectedSeries=allSeries[si];break}
+
+ if(allSeries[si].id===seriesId){selectedSeries=allSeries[si];break}
+
 }
+
 if(!selectedSeries){window.location.replace("series.html");return}
+
 document.title=selectedSeries.title+" | Allend TV";
+
 var episodes=[];
+
 for(var i=1;i<=selectedSeries.episodes;i++){
- var n=(i<10?"0":"")+i;
- episodes.push({title:"Episode "+i,url:selectedSeries.baseUrl+n+selectedSeries.extension+(selectedSeries.token?"?md5="+encodeURIComponent(selectedSeries.token):"")});
+
+ var n=(i<10?"0":"")+i;
+
+ episodes.push({title:"Episode "+i,url:selectedSeries.baseUrl+n+selectedSeries.extension+(selectedSeries.token?"?md5="+encodeURIComponent(selectedSeries.token):"")});
+
 }
+
+
 
 var video=$("video"),screen=$("screen"),list=$("episodeList");
+
+function introRange(){var ep=episodes[current];return ep&&ep.intro?ep.intro:(selectedSeries.intro||null)}
+
+function updateSkipIntro(){var r=introRange(),t=video.currentTime;$("skipIntro").hidden=!(r&&Number.isFinite(r.start)&&Number.isFinite(r.end)&&r.end>r.start&&t>=r.start&&t<r.end)}
+
+listen($("skipIntro"),"click",function(){var r=introRange();if(r){video.currentTime=r.end;updateSkipIntro();settleControls()}});
+
 var select=$("episodeSelect");
+
 var current=0,shuffle=false,lastSave=0;
+
 var storageKey=selectedSeries.id+"-progress-v1";
+
 var saved={};
+
 try{saved=JSON.parse(localStorage.getItem(storageKey)||"{}")||{}}catch(e){}
+
 if(!saved.positions)saved.positions={};
+
 if(!saved.watched)saved.watched={};
+
 if(!saved.settings)saved.settings={};
+
 if(!saved.recent)saved.recent=[];
+
 var nextTimer=null,nextSeconds=0,nextTarget=-1;
+
 function cancelCountdown(){if(nextTimer)clearInterval(nextTimer);nextTimer=null;removeClass($("nextCountdown"),"visible")}
+
 function setLoading(on){toggleClass($("screen"),"is-loading",!!on)}
+
 function refreshRecent(){
- var el=$("recentList");while(el.firstChild)el.removeChild(el.firstChild);
- for(var k=0;k<saved.recent.length&&k<6;k++)(function(idx){
-  if(idx<0||idx>=episodes.length)return;
-  var b=document.createElement("button");b.type="button";text(b,episodes[idx].title);
-  listen(b,"click",function(){loadEpisode(idx,true)});el.appendChild(b)
- })(Number(saved.recent[k]));
- if(!el.firstChild)text(el,"No episodes watched yet.")
+
+ var el=$("recentList");while(el.firstChild)el.removeChild(el.firstChild);
+
+ for(var k=0;k<saved.recent.length&&k<6;k++)(function(idx){
+
+  if(idx<0||idx>=episodes.length)return;
+
+  var b=document.createElement("button");b.type="button";text(b,episodes[idx].title);
+
+  listen(b,"click",function(){loadEpisode(idx,true)});el.appendChild(b)
+
+ })(Number(saved.recent[k]));
+
+ if(!el.firstChild)text(el,"No episodes watched yet.")
+
 }
+
 function rememberRecent(index){
- var arr=[index];for(var k=0;k<saved.recent.length;k++)if(Number(saved.recent[k])!==index&&arr.length<6)arr.push(Number(saved.recent[k]));
- saved.recent=arr;persist();refreshRecent()
+
+ var arr=[index];for(var k=0;k<saved.recent.length;k++)if(Number(saved.recent[k])!==index&&arr.length<6)arr.push(Number(saved.recent[k]));
+
+ saved.recent=arr;persist();refreshRecent()
+
 }
+
 function updateQuality(){
- var sel=$("qualitySelect"),ep=episodes[current],qualities=ep.qualities||{},key,opt;
- while(sel.options.length)sel.remove(0);
- opt=document.createElement("option");opt.value="auto";text(opt,"Original (720p)");sel.appendChild(opt);
- for(key in qualities)if(qualities.hasOwnProperty(key)&&qualities[key]){opt=document.createElement("option");opt.value=key;text(opt,key);sel.appendChild(opt)}
- sel.value="auto"
+
+ var sel=$("qualitySelect"),ep=episodes[current],qualities=ep.qualities||{},key,opt;
+
+ while(sel.options.length)sel.remove(0);
+
+ opt=document.createElement("option");opt.value="auto";text(opt,"Original (720p)");sel.appendChild(opt);
+
+ for(key in qualities)if(qualities.hasOwnProperty(key)&&qualities[key]){opt=document.createElement("option");opt.value=key;text(opt,key);sel.appendChild(opt)}
+
+ sel.value="auto"
+
 }
+
 function updateSubtitles(){
- var sel=$("subtitleSelect"),tracks=video.getElementsByTagName("track"),opt,i;
- while(sel.options.length)sel.remove(0);
- opt=document.createElement("option");opt.value="off";text(opt,"Off");sel.appendChild(opt);
- for(i=0;i<tracks.length;i++){opt=document.createElement("option");opt.value=String(i);text(opt,tracks[i].label||tracks[i].srclang||"Subtitle "+(i+1));sel.appendChild(opt)}
- sel.value="off"
+
+ var sel=$("subtitleSelect"),tracks=video.getElementsByTagName("track"),opt,i;
+
+ while(sel.options.length)sel.remove(0);
+
+ opt=document.createElement("option");opt.value="off";text(opt,"Off");sel.appendChild(opt);
+
+ for(i=0;i<tracks.length;i++){opt=document.createElement("option");opt.value=String(i);text(opt,tracks[i].label||tracks[i].srclang||"Subtitle "+(i+1));sel.appendChild(opt)}
+
+ sel.value="off"
+
 }
+
 function applySettings(){
- var st=saved.settings;
- $("settingAutohide").checked=st.autohide!==false;
- $("settingCountdown").checked=st.countdown!==false;
- $("settingLowMemory").checked=!!st.lowMemory;
- $("settingSeconds").value=String(st.countdownSeconds||10);
- toggleClass(document.body,"low-memory",!!st.lowMemory);
- $("autoNext").checked=st.autoNext!==false;
+
+ var st=saved.settings;
+
+ $("settingAutohide").checked=st.autohide!==false;
+
+ $("settingCountdown").checked=st.countdown!==false;
+
+ $("settingLowMemory").checked=!!st.lowMemory;
+
+ $("settingSeconds").value=String(st.countdownSeconds||10);
+
+ toggleClass(document.body,"low-memory",!!st.lowMemory);
+
+ $("autoNext").checked=st.autoNext!==false;
+
 }
+
 function startCountdown(index){
- cancelCountdown();if(index<0||index>=episodes.length)return;
- nextTarget=index;nextSeconds=Number($("settingSeconds").value)||10;
- addClass($("nextCountdown"),"visible");
- function tick(){text($("nextCountdownText"),"Next: "+episodes[nextTarget].title+" in "+nextSeconds+"s");if(nextSeconds<=0){var n=nextTarget;cancelCountdown();loadEpisode(n,true)}else nextSeconds--}
- tick();nextTimer=setInterval(tick,1000)
+
+ cancelCountdown();if(index<0||index>=episodes.length)return;
+
+ nextTarget=index;nextSeconds=Number($("settingSeconds").value)||10;
+
+ addClass($("nextCountdown"),"visible");
+
+ function tick(){text($("nextCountdownText"),"Next: "+episodes[nextTarget].title+" in "+nextSeconds+"s");if(nextSeconds<=0){var n=nextTarget;cancelCountdown();loadEpisode(n,true)}else nextSeconds--}
+
+ tick();nextTimer=setInterval(tick,1000)
+
 }
+
 listen($("playNextNow"),"click",function(){var n=nextTarget;cancelCountdown();loadEpisode(n,true)});
+
 listen($("cancelNext"),"click",cancelCountdown);
+
 listen($("qualitySelect"),"change",function(){
- var ep=episodes[current],q=$("qualitySelect").value,url=q==="auto"?ep.url:(ep.qualities||{})[q];
- if(!url)return;
- var t=video.currentTime,wasPlaying=!video.paused;video.src=url;video.load();
- var restore=function(){video.removeEventListener("loadedmetadata",restore);if(isFinite(t)&&t>0)try{video.currentTime=t}catch(e){}if(wasPlaying)video.play()};
- listen(video,"loadedmetadata",restore)
+
+ var ep=episodes[current],q=$("qualitySelect").value,url=q==="auto"?ep.url:(ep.qualities||{})[q];
+
+ if(!url)return;
+
+ var t=video.currentTime,wasPlaying=!video.paused;video.src=url;video.load();
+
+ var restore=function(){video.removeEventListener("loadedmetadata",restore);if(isFinite(t)&&t>0)try{video.currentTime=t}catch(e){}if(wasPlaying)video.play()};
+
+ listen(video,"loadedmetadata",restore)
+
 });
+
 listen($("subtitleSelect"),"change",function(){var ts=video.textTracks;for(var i=0;i<ts.length;i++)ts[i].mode=String(i)===$("subtitleSelect").value?"showing":"disabled"});
+
 function saveSettings(){saved.settings.autohide=$("settingAutohide").checked;saved.settings.countdown=$("settingCountdown").checked;saved.settings.lowMemory=$("settingLowMemory").checked;saved.settings.countdownSeconds=Number($("settingSeconds").value);saved.settings.autoNext=$("autoNext").checked;persist();applySettings();revealControls()}
+
 listen($("settingAutohide"),"change",saveSettings);listen($("settingCountdown"),"change",saveSettings);
+
 listen($("settingLowMemory"),"change",saveSettings);listen($("settingSeconds"),"change",saveSettings);listen($("autoNext"),"change",saveSettings);
+
 applySettings();
+
 function persist(){
- try{localStorage.setItem(storageKey,JSON.stringify(saved))}catch(e){}
+
+ try{localStorage.setItem(storageKey,JSON.stringify(saved))}catch(e){}
+
 }
+
 function savePosition(){
- if(!video.currentSrc||!isFinite(video.currentTime)||video.currentTime<=0)return;
- if(isFinite(video.duration)&&video.duration-video.currentTime<8)return;
- saved.positions[current]=video.currentTime;
- persist()
+
+ if(!video.currentSrc||!isFinite(video.currentTime)||video.currentTime<=0)return;
+
+ if(isFinite(video.duration)&&video.duration-video.currentTime<8)return;
+
+ saved.positions[current]=video.currentTime;
+
+ persist()
+
 }
+
 function refreshLibrary(){
- var count=0,i,el,watched,pos,filter,q,match;
- for(i=0;i<episodes.length;i++)if(saved.watched[i])count++;
- text($("libraryStats"),count+" of "+episodes.length+" episodes watched");
- $("seriesProgress").style.width=(count*100/episodes.length)+"%";
- filter=$("filterEpisodes").value;
- q=$("episodeSearch").value.toLowerCase();
- for(i=0;i<list.children.length;i++){
-  el=list.children[i];
-  watched=!!saved.watched[i];
-  pos=Number(saved.positions[i])||0;
-  toggleClass(el,"watched",watched);
-  toggleClass(el,"active",i===current);
-  text(el.getElementsByTagName("button")[0],watched?"✓ Watched":"Mark watched");
-  match=episodes[i].title.toLowerCase().indexOf(q)!==-1;
-  if(filter==="watched")match=match&&watched;
-  if(filter==="unwatched")match=match&&!watched;
-  if(filter==="progress")match=match&&pos>0&&!watched;
-  el.style.display=match?"":"none"
- }
- var last=Number(saved.lastEpisode)||0;
- if(last<0||last>=episodes.length)last=0;
- pos=Number(saved.positions[last])||0;
- $("continuePanel").style.display=pos>0&&!saved.watched[last]?"block":"none";
- text($("continueText"),episodes[last].title+" · resume at "+fmt(pos))
+
+ var count=0,i,el,watched,pos,filter,q,match;
+
+ for(i=0;i<episodes.length;i++)if(saved.watched[i])count++;
+
+ text($("libraryStats"),count+" of "+episodes.length+" episodes watched");
+
+ $("seriesProgress").style.width=(count*100/episodes.length)+"%";
+
+ filter=$("filterEpisodes").value;
+
+ q=$("episodeSearch").value.toLowerCase();
+
+ for(i=0;i<list.children.length;i++){
+
+  el=list.children[i];
+
+  watched=!!saved.watched[i];
+
+  pos=Number(saved.positions[i])||0;
+
+  toggleClass(el,"watched",watched);
+
+  toggleClass(el,"active",i===current);
+
+  text(el.getElementsByTagName("button")[0],watched?"✓ Watched":"Mark watched");
+
+  match=episodes[i].title.toLowerCase().indexOf(q)!==-1;
+
+  if(filter==="watched")match=match&&watched;
+
+  if(filter==="unwatched")match=match&&!watched;
+
+  if(filter==="progress")match=match&&pos>0&&!watched;
+
+  el.style.display=match?"":"none"
+
+ }
+
+ var last=Number(saved.lastEpisode)||0;
+
+ if(last<0||last>=episodes.length)last=0;
+
+ pos=Number(saved.positions[last])||0;
+
+ $("continuePanel").style.display=pos>0&&!saved.watched[last]?"block":"none";
+
+ text($("continueText"),episodes[last].title+" · resume at "+fmt(pos))
+
 }
+
 function loadEpisode(index,play){
- if(index<0||index>=episodes.length)return;
- cancelCountdown();setLoading(true);
- savePosition();
- current=index;
- saved.lastEpisode=current;
- persist();
- var ep=episodes[current];
- updateQuality();
- while(video.firstChild)video.removeChild(video.firstChild);
- if(ep.subtitles){for(var z=0;z<ep.subtitles.length;z++){var tr=document.createElement("track");tr.kind="subtitles";tr.src=ep.subtitles[z].url;tr.srclang=ep.subtitles[z].lang||"en";tr.label=ep.subtitles[z].label||tr.srclang;video.appendChild(tr)}}
- updateSubtitles();
- text($("nowPlaying"),ep.title);
- select.value=String(current);
- $("prev").disabled=current===0;
- $("next").disabled=current===episodes.length-1;
-  $("playerPrev").disabled=current===0;
-  $("playerNext").disabled=current===episodes.length-1;
-  showEpisodeOverlay(ep.title);
-  revealControls();
- video.src=ep.url;
- video.load();
- setStatus("Loading "+ep.title+"...");
- refreshLibrary();
- if(play){
-  try{
-   var p=video.play();
-   if(p&&p["catch"])p["catch"](function(){
-    setLoading(false);setStatus("Press Play to start.")
-   })
-  }catch(e){setLoading(false);setStatus("Press Play to start.")}
- }
+
+ if(index<0||index>=episodes.length)return;
+
+ cancelCountdown();setLoading(true);
+
+ savePosition();
+
+ current=index;
+
+ $("skipIntro").hidden=true;
+
+ saved.lastEpisode=current;
+
+ persist();
+
+ var ep=episodes[current];
+
+ updateQuality();
+
+ while(video.firstChild)video.removeChild(video.firstChild);
+
+ if(ep.subtitles){for(var z=0;z<ep.subtitles.length;z++){var tr=document.createElement("track");tr.kind="subtitles";tr.src=ep.subtitles[z].url;tr.srclang=ep.subtitles[z].lang||"en";tr.label=ep.subtitles[z].label||tr.srclang;video.appendChild(tr)}}
+
+ updateSubtitles();
+
+ text($("nowPlaying"),ep.title);
+
+ select.value=String(current);
+
+ $("prev").disabled=current===0;
+
+ $("next").disabled=current===episodes.length-1;
+
+  $("playerPrev").disabled=current===0;
+
+  $("playerNext").disabled=current===episodes.length-1;
+
+  showEpisodeOverlay(ep.title);
+
+  settleControls();
+
+ video.src=ep.url;
+
+ video.load();
+
+ setStatus("Loading "+ep.title+"...");
+
+ refreshLibrary();
+
+ if(play){
+
+  try{
+
+   var p=video.play();
+
+   if(p&&p["catch"])p["catch"](function(){
+
+    setLoading(false);setStatus("Press Play to start.")
+
+   })
+
+  }catch(e){setLoading(false);setStatus("Press Play to start.")}
+
+ }
+
 }
+
 for(var j=0;j<episodes.length;j++){
- (function(index){
-  var option=document.createElement("option");
-  option.value=String(index);
-  text(option,episodes[index].title);
-  select.appendChild(option);
-  var item=document.createElement("div");
-  item.className="episode";
-  item.tabIndex=0;
-  var num=document.createElement("span");
-  num.className="episode-num";
-  text(num,index+1);
-  var title=document.createElement("span");
-  title.className="episode-title";
-  text(title,episodes[index].title);
-  var toggle=document.createElement("button");
-  toggle.type="button";
-  toggle.className="watch-toggle";
-  listen(toggle,"click",function(e){
-   if(e.stopPropagation)e.stopPropagation();
-   saved.watched[index]=!saved.watched[index];
-   persist();refreshLibrary()
-  });
-  item.appendChild(num);
-  item.appendChild(title);
-  item.appendChild(toggle);
-  listen(item,"click",function(){loadEpisode(index,true)});
-  listen(item,"keydown",function(e){
-   e=e||window.event;
-   if(e.keyCode===13){loadEpisode(index,true)}
-  });
-  list.appendChild(item)
- })(j)
+
+ (function(index){
+
+  var option=document.createElement("option");
+
+  option.value=String(index);
+
+  text(option,episodes[index].title);
+
+  select.appendChild(option);
+
+  var item=document.createElement("div");
+
+  item.className="episode";
+
+  item.tabIndex=0;
+
+  var num=document.createElement("span");
+
+  num.className="episode-num";
+
+  text(num,index+1);
+
+  var title=document.createElement("span");
+
+  title.className="episode-title";
+
+  text(title,episodes[index].title);
+
+  var toggle=document.createElement("button");
+
+  toggle.type="button";
+
+  toggle.className="watch-toggle";
+
+  listen(toggle,"click",function(e){
+
+   if(e.stopPropagation)e.stopPropagation();
+
+   saved.watched[index]=!saved.watched[index];
+
+   persist();refreshLibrary()
+
+  });
+
+  item.appendChild(num);
+
+  item.appendChild(title);
+
+  item.appendChild(toggle);
+
+  listen(item,"click",function(){loadEpisode(index,true)});
+
+  listen(item,"keydown",function(e){
+
+   e=e||window.event;
+
+   if(e.keyCode===13){loadEpisode(index,true)}
+
+  });
+
+  list.appendChild(item)
+
+ })(j)
+
 }
+
 function reorder(){
- var desc=$("sortEpisodes").value==="desc";
- var children=[];
- for(var i=0;i<list.children.length;i++)children.push(list.children[i]);
- if(desc)children.reverse();
- for(i=0;i<children.length;i++)list.appendChild(children[i])
+
+ var desc=$("sortEpisodes").value==="desc";
+
+ var children=[];
+
+ for(var i=0;i<list.children.length;i++)children.push(list.children[i]);
+
+ if(desc)children.reverse();
+
+ for(i=0;i<children.length;i++)list.appendChild(children[i])
+
 }
+
 listen($("sortEpisodes"),"change",reorder);
+
 listen($("filterEpisodes"),"change",refreshLibrary);
+
 listen($("episodeSearch"),"keyup",refreshLibrary);
+
 listen(select,"change",function(){loadEpisode(Number(select.value),true)});
+
 listen($("prev"),"click",function(){loadEpisode(current-1,true)});
+
 listen($("next"),"click",function(){loadEpisode(current+1,true)});
+
 listen($("playerPrev"),"click",function(){loadEpisode(current-1,true)});
+
 listen($("playerNext"),"click",function(){loadEpisode(current+1,true)});
+
+/* Continue Watching */
 listen($("continueButton"),"click",function(){
- loadEpisode(Number(saved.lastEpisode)||0,true)
+  loadEpisode(Number(saved.lastEpisode)||0,true);
 });
+
+/* Watch From Beginning */
+listen($("restartEpisode"),"click",function(){
+  // Clear stored resume point before restarting.
+  delete saved.positions[current];
+  persist();
+
+  function restart(){
+    video.currentTime=0;
+    updateSkipIntro();
+    updateProgress();
+    refreshLibrary();
+    var p=video.play();
+    if(p&&p.catch)p.catch(function(){setStatus("Press Play to start.")});
+    settleControls();
+  }
+
+  if(video.readyState>=1){
+    restart();
+  }else{
+    listen(video,"loadedmetadata",function once(){
+      video.removeEventListener("loadedmetadata",once);
+      restart();
+    });
+    if(video.networkState===video.NETWORK_EMPTY)video.load();
+  }
+});
+
 function playPause(){
- if(video.paused){
-  try{video.play()}catch(e){}
- }else video.pause()
+
+ if(video.paused){
+
+  try{video.play()}catch(e){}
+
+ }else video.pause()
+
 }
+
 listen($("playPause"),"click",playPause);
+
 listen(video,"play",function(){
- text($("playPause"),"❚❚");revealControls()
+
+ text($("playPause"),"❚❚");revealControls()
+
 });
+
 listen(video,"pause",function(){
- text($("playPause"),"▶");
-  removeClass(screen,"controls-hidden");
- savePosition()
+
+ text($("playPause"),"▶");
+
+  removeClass(screen,"controls-hidden");
+
+ savePosition()
+
 });
+
 listen(video,"playing",function(){
- setLoading(false);rememberRecent(current);
- setStatus("Now playing "+episodes[current].title)
+
+ setLoading(false);rememberRecent(current);
+
+ setStatus("Now playing "+episodes[current].title)
+
 });
+
 listen(video,"waiting",function(){setLoading(true);setStatus("Buffering episode "+(current+1)+"... If this continues, check your connection.")});
+
 listen(video,"stalled",function(){setLoading(true);setStatus("Stream stalled. Waiting for video data; check your internet connection if it continues.",true)});
+
 listen(video,"error",function(){
- var err=video.error,code=err?err.code:0,message;
- if(code===1)message="Playback was interrupted. Select the episode again to retry.";
- else if(code===2)message="Network error loading episode "+(current+1)+". Check your internet connection and retry.";
- else if(code===3)message="This video could not be decoded. Your browser or TV may not support its format.";
- else if(code===4)message="Episode "+(current+1)+" is unavailable. Its stream link may have expired, or the video format may be unsupported.";
- else message="Episode "+(current+1)+" could not load. Check the stream link and your connection.";
- setLoading(false);setStatus(message,true);revealControls()
+
+ var err=video.error,code=err?err.code:0,message;
+
+ if(code===1)message="Playback was interrupted. Select the episode again to retry.";
+
+ else if(code===2)message="Network error loading episode "+(current+1)+". Check your internet connection and retry.";
+
+ else if(code===3)message="This video could not be decoded. Your browser or TV may not support its format.";
+
+ else if(code===4)message="Episode "+(current+1)+" is unavailable. Its stream link may have expired, or the video format may be unsupported.";
+
+ else message="Episode "+(current+1)+" could not load. Check the stream link and your connection.";
+
+ setLoading(false);setStatus(message,true);revealControls()
+
 });
+
 listen(video,"loadedmetadata",function(){setLoading(false);
- var pos=Number(saved.positions[current])||0;
- if(pos>0&&isFinite(video.duration)&&pos<video.duration-8){
-  try{video.currentTime=pos}catch(e){}
- }
- refreshLibrary()
+
+ var pos=Number(saved.positions[current])||0;
+
+ if(pos>0&&isFinite(video.duration)&&pos<video.duration-8){
+
+  try{video.currentTime=pos}catch(e){}
+
+ }
+
+ refreshLibrary()
+
 });
+
 function updateProgress(){
- $("seek").value=isFinite(video.duration)&&video.duration>0?
-  Math.round(video.currentTime/video.duration*1000):0;
- text($("timeDisplay"),fmt(video.currentTime)+" / "+fmt(video.duration))
+
+ $("seek").value=isFinite(video.duration)&&video.duration>0?
+
+  Math.round(video.currentTime/video.duration*1000):0;
+
+ text($("timeDisplay"),fmt(video.currentTime)+" / "+fmt(video.duration))
+
 }
-listen(video,"timeupdate",function(){
- updateProgress();
- if(new Date().getTime()-lastSave>4000){
-  savePosition();lastSave=new Date().getTime()
- }
+
+listen(video,"timeupdate",function(){updateSkipIntro();
+
+ updateProgress();
+
+ if(new Date().getTime()-lastSave>4000){
+
+  savePosition();lastSave=new Date().getTime()
+
+ }
+
 });
+
 listen(video,"durationchange",updateProgress);
+
 listen(window,"pagehide",savePosition);
+
 listen($("seek"),"change",function(){
- if(isFinite(video.duration)&&video.duration>0)
-  video.currentTime=video.duration*Number($("seek").value)/1000
+
+ if(isFinite(video.duration)&&video.duration>0)
+
+  video.currentTime=video.duration*Number($("seek").value)/1000
+
 });
+
 function updateMute(){
- text($("mute"),video.muted||video.volume===0?"🔇":"🔊")
+
+ text($("mute"),video.muted||video.volume===0?"🔇":"🔊")
+
 }
+
 listen($("mute"),"click",function(){
- video.muted=!video.muted;updateMute()
+
+ video.muted=!video.muted;updateMute()
+
 });
+
 listen($("volume"),"change",function(){
- video.volume=Number($("volume").value);
- video.muted=false;updateMute()
+
+ video.volume=Number($("volume").value);
+
+ video.muted=false;updateMute()
+
 });
+
 listen($("back10"),"click",function(){
- video.currentTime=Math.max(0,video.currentTime-10)
+
+ video.currentTime=Math.max(0,video.currentTime-10)
+
 });
+
 listen($("forward10"),"click",function(){
- if(isFinite(video.duration))
-  video.currentTime=Math.min(video.duration,video.currentTime+10)
+
+ if(isFinite(video.duration))
+
+  video.currentTime=Math.min(video.duration,video.currentTime+10)
+
 });
+
+
 
 /* Fullscreen: real when supported, CSS fallback otherwise */
+
 var pseudo=false;
+
 function updateFullscreen(){
- text($("fullscreen"),pseudo||document.fullscreenElement?"⤢":"⛶")
+
+ text($("fullscreen"),pseudo||document.fullscreenElement?"⤢":"⛶")
+
 }
+
 function enterPseudo(){
- pseudo=true;
- addClass(screen,"pseudo-fullscreen");
- addClass(document.body,"fullscreen-active");
- updateFullscreen()
+
+ pseudo=true;
+
+ addClass(screen,"pseudo-fullscreen");
+
+ addClass(document.body,"fullscreen-active");
+
+ updateFullscreen()
+
 }
+
 function exitPseudo(){
- pseudo=false;
- removeClass(screen,"pseudo-fullscreen");
- removeClass(document.body,"fullscreen-active");
- updateFullscreen()
+
+ pseudo=false;
+
+ removeClass(screen,"pseudo-fullscreen");
+
+ removeClass(document.body,"fullscreen-active");
+
+ updateFullscreen()
+
 }
+
 function toggleFullscreen(){
- if(pseudo){exitPseudo();return}
- if(document.fullscreenElement&&document.exitFullscreen){
-  document.exitFullscreen();return
- }
- var iphone=/iPhone|iPod/.test(navigator.userAgent);
- if(iphone){enterPseudo();return}
- var request=screen.requestFullscreen||
-  screen.webkitRequestFullscreen||
-  screen.msRequestFullscreen;
- if(request){
-  try{
-   var result=request.call(screen);
-   if(result&&result["catch"])result["catch"](enterPseudo);
-   return
-  }catch(e){}
- }
- enterPseudo()
+
+ if(pseudo){exitPseudo();return}
+
+ if(document.fullscreenElement&&document.exitFullscreen){
+
+  document.exitFullscreen();return
+
+ }
+
+ var iphone=/iPhone|iPod/.test(navigator.userAgent);
+
+ if(iphone){enterPseudo();return}
+
+ var request=screen.requestFullscreen||
+
+  screen.webkitRequestFullscreen||
+
+  screen.msRequestFullscreen;
+
+ if(request){
+
+  try{
+
+   var result=request.call(screen);
+
+   if(result&&result["catch"])result["catch"](enterPseudo);
+
+   return
+
+  }catch(e){}
+
+ }
+
+ enterPseudo()
+
 }
-listen($("fullscreen"),"click",toggleFullscreen);
+
+listen($("fullscreen"),"click",function(){toggleFullscreen();settleControls()});
+
 listen(document,"fullscreenchange",updateFullscreen);
+
 listen(document,"webkitfullscreenchange",updateFullscreen);
+
 listen(video,"click",playPause);
+
 listen($("speed"),"change",function(){
- video.playbackRate=Number($("speed").value);
- saved.settings.speed=video.playbackRate;persist()
-});
-$("speed").value=String(saved.settings.speed||1);
-video.playbackRate=Number($("speed").value);
-listen($("pip"),"click",function(){
- try{
-  if(video.requestPictureInPicture)video.requestPictureInPicture();
-  else setStatus("Mini player unsupported on this TV.")
- }catch(e){setStatus("Mini player unavailable.")}
-});
-listen($("cinema"),"click",function(){
- toggleClass(document.body,"theater",!hasClass(document.body,"theater"));
- text($("cinema"),hasClass(document.body,"theater")?"Exit theater":"☾ Theater")
-});
-listen($("loop"),"click",function(){
- video.loop=!video.loop;
- text($("loop"),video.loop?"↻ Loop on":"↻ Loop off")
-});
-listen($("shuffle"),"click",function(){
- shuffle=!shuffle;
- text($("shuffle"),shuffle?"Shuffle on":"Shuffle off")
-});
-listen(video,"ended",function(){
- setLoading(false);
- saved.watched[current]=true;
- delete saved.positions[current];
- persist();refreshLibrary();
- if(!$("autoNext").checked||video.loop)return;
- if(shuffle&&episodes.length>1){
-  var next=current;
-  while(next===current)next=Math.floor(Math.random()*episodes.length);
-  if($("settingCountdown").checked)startCountdown(next);else loadEpisode(next,true)
- }else if(current<episodes.length-1){
-  if($("settingCountdown").checked)startCountdown(current+1);else loadEpisode(current+1,true)
- }else setStatus("You have reached the last episode.")
-});
-listen($("screenshot"),"click",function(){
- try{
-  var canvas=document.createElement("canvas");
-  canvas.width=video.videoWidth;
-  canvas.height=video.videoHeight;
-  if(!canvas.width)throw new Error();
-  canvas.getContext("2d").drawImage(video,0,0);
-  var a=document.createElement("a");
-  a.href=canvas.toDataURL("image/png");
-  a.download="allend-episode-"+(current+1)+".png";
-  a.click()
- }catch(e){setStatus("Snapshot unavailable on this browser.",true)}
-});
-listen($("markAll"),"click",function(){
- if(!confirm("Mark all watched?"))return;
- for(var i=0;i<episodes.length;i++)saved.watched[i]=true;
- persist();refreshLibrary()
-});
-listen($("clearWatched"),"click",function(){
- if(!confirm("Clear watched history?"))return;
- saved.watched={};persist();refreshLibrary()
-});
-listen($("resetProgress"),"click",function(){
- if(!confirm("Reset progress?"))return;
- saved.positions={};persist();refreshLibrary()
-});
-listen($("exportData"),"click",function(){
- try{
-  savePosition();
-  var data=JSON.stringify(saved);
-  var blob=new Blob([data],{type:"application/json"});
-  var url=URL.createObjectURL(blob);
-  var a=document.createElement("a");
-  a.href=url;a.download="allend-history.json";a.click();
-  setTimeout(function(){URL.revokeObjectURL(url)},1000)
- }catch(e){setStatus("Export unsupported on this TV.")}
-});
-listen($("importButton"),"click",function(){$("importData").click()});
-listen($("importData"),"change",function(){
- var file=$("importData").files[0];
- if(!file||!window.FileReader)return;
- var reader=new FileReader();
- reader.onload=function(){
-  try{
-   var data=JSON.parse(reader.result);
-   if(!data.positions||!data.watched)throw new Error();
-   saved.positions=data.positions;
-   saved.watched=data.watched;
-   saved.lastEpisode=Number(data.lastEpisode)||0;
-   saved.settings=data.settings||{};
-   saved.recent=data.recent||[];applySettings();refreshRecent();
-   persist();refreshLibrary();
-   loadEpisode(saved.lastEpisode,false)
-  }catch(e){setStatus("Invalid history file.",true)}
- };
- reader.readAsText(file)
+
+ video.playbackRate=Number($("speed").value);
+
+ saved.settings.speed=video.playbackRate;persist()
+
 });
 
-/* TV remote and keyboard */
-listen(document,"keydown",function(e){
- e=e||window.event;
- var code=e.keyCode;
- var target=e.target||e.srcElement;
- var tag=target&&target.tagName?target.tagName.toUpperCase():"";
- if(code===10009||code===461||code===8){
-  if(pseudo){exitPseudo();if(e.preventDefault)e.preventDefault()}
-  return
- }
- if(tag==="INPUT"||tag==="SELECT"||tag==="BUTTON")return;
-  revealControls();
- if(code===32||code===179||code===415){playPause()}
-  else if(code===413){video.pause()}
-  else if(code===417){loadEpisode(current+1,true)}
-  else if(code===412){loadEpisode(current-1,true)}
- else if(code===37){video.currentTime=Math.max(0,video.currentTime-10)}
- else if(code===39&&isFinite(video.duration)){
-  video.currentTime=Math.min(video.duration,video.currentTime+10)
- }
- else if(code===70){toggleFullscreen()}
- else if(code===77){video.muted=!video.muted;updateMute()}
- else if(code===78){loadEpisode(current+1,true)}
- else if(code===80){loadEpisode(current-1,true)}
- else if(code===27&&pseudo){exitPseudo()}
- else return;
- if(e.preventDefault)e.preventDefault()
+$("speed").value=String(saved.settings.speed||1);
+
+video.playbackRate=Number($("speed").value);
+
+listen($("pip"),"click",function(){
+
+ try{
+
+  if(video.requestPictureInPicture)video.requestPictureInPicture();
+
+  else setStatus("Mini player unsupported on this TV.")
+
+ }catch(e){setStatus("Mini player unavailable.")}
+
 });
+
+listen($("cinema"),"click",function(){
+
+ toggleClass(document.body,"theater",!hasClass(document.body,"theater"));
+
+ text($("cinema"),hasClass(document.body,"theater")?"Exit theater":"☾ Theater");
+
+ settleControls();
+
+});
+
+listen($("loop"),"click",function(){
+
+ video.loop=!video.loop;
+
+ text($("loop"),video.loop?"↻ Loop on":"↻ Loop off")
+
+});
+
+listen($("shuffle"),"click",function(){
+
+ shuffle=!shuffle;
+
+ text($("shuffle"),shuffle?"Shuffle on":"Shuffle off")
+
+});
+
+listen(video,"ended",function(){
+
+ $("skipIntro").hidden=true;setLoading(false);
+
+ saved.watched[current]=true;
+
+ delete saved.positions[current];
+
+ persist();refreshLibrary();
+
+ if(!$("autoNext").checked||video.loop)return;
+
+ if(shuffle&&episodes.length>1){
+
+  var next=current;
+
+  while(next===current)next=Math.floor(Math.random()*episodes.length);
+
+  if($("settingCountdown").checked)startCountdown(next);else loadEpisode(next,true)
+
+ }else if(current<episodes.length-1){
+
+  if($("settingCountdown").checked)startCountdown(current+1);else loadEpisode(current+1,true)
+
+ }else setStatus("You have reached the last episode.")
+
+});
+
+listen($("screenshot"),"click",function(){
+
+ try{
+
+  var canvas=document.createElement("canvas");
+
+  canvas.width=video.videoWidth;
+
+  canvas.height=video.videoHeight;
+
+  if(!canvas.width)throw new Error();
+
+  canvas.getContext("2d").drawImage(video,0,0);
+
+  var a=document.createElement("a");
+
+  a.href=canvas.toDataURL("image/png");
+
+  a.download="allend-episode-"+(current+1)+".png";
+
+  a.click()
+
+ }catch(e){setStatus("Snapshot unavailable on this browser.",true)}
+
+});
+
+listen($("markAll"),"click",function(){
+
+ if(!confirm("Mark all watched?"))return;
+
+ for(var i=0;i<episodes.length;i++)saved.watched[i]=true;
+
+ persist();refreshLibrary()
+
+});
+
+listen($("clearWatched"),"click",function(){
+
+ if(!confirm("Clear watched history?"))return;
+
+ saved.watched={};persist();refreshLibrary()
+
+});
+
+listen($("resetProgress"),"click",function(){
+
+ if(!confirm("Reset progress?"))return;
+
+ saved.positions={};persist();refreshLibrary()
+
+});
+
+listen($("exportData"),"click",function(){
+
+ try{
+
+  savePosition();
+
+  var data=JSON.stringify(saved);
+
+  var blob=new Blob([data],{type:"application/json"});
+
+  var url=URL.createObjectURL(blob);
+
+  var a=document.createElement("a");
+
+  a.href=url;a.download="allend-history.json";a.click();
+
+  setTimeout(function(){URL.revokeObjectURL(url)},1000)
+
+ }catch(e){setStatus("Export unsupported on this TV.")}
+
+});
+
+listen($("importButton"),"click",function(){$("importData").click()});
+
+listen($("importData"),"change",function(){
+
+ var file=$("importData").files[0];
+
+ if(!file||!window.FileReader)return;
+
+ var reader=new FileReader();
+
+ reader.onload=function(){
+
+  try{
+
+   var data=JSON.parse(reader.result);
+
+   if(!data.positions||!data.watched)throw new Error();
+
+   saved.positions=data.positions;
+
+   saved.watched=data.watched;
+
+   saved.lastEpisode=Number(data.lastEpisode)||0;
+
+   saved.settings=data.settings||{};
+
+   saved.recent=data.recent||[];applySettings();refreshRecent();
+
+   persist();refreshLibrary();
+
+   loadEpisode(saved.lastEpisode,false)
+
+  }catch(e){setStatus("Invalid history file.",true)}
+
+ };
+
+ reader.readAsText(file)
+
+});
+
+
+
+/* TV remote and keyboard */
+
+listen(document,"keydown",function(e){
+
+ e=e||window.event;
+
+ var code=e.keyCode;
+
+ var target=e.target||e.srcElement;
+
+ var tag=target&&target.tagName?target.tagName.toUpperCase():"";
+
+ if(code===10009||code===461||code===8){
+
+  if(pseudo){exitPseudo();if(e.preventDefault)e.preventDefault()}
+
+  return
+
+ }
+
+ if(tag==="INPUT"||tag==="SELECT"||tag==="BUTTON")return;
+
+  revealControls();
+
+ if(code===32||code===179||code===415){playPause()}
+
+  else if(code===413){video.pause()}
+
+  else if(code===417){loadEpisode(current+1,true)}
+
+  else if(code===412){loadEpisode(current-1,true)}
+
+ else if(code===37){video.currentTime=Math.max(0,video.currentTime-10)}
+
+ else if(code===39&&isFinite(video.duration)){
+
+  video.currentTime=Math.min(video.duration,video.currentTime+10)
+
+ }
+
+ else if(code===70){toggleFullscreen()}
+
+ else if(code===77){video.muted=!video.muted;updateMute()}
+
+ else if(code===78){loadEpisode(current+1,true)}
+
+ else if(code===80){loadEpisode(current-1,true)}
+
+ else if(code===27&&pseudo){exitPseudo()}
+
+ else return;
+
+ if(e.preventDefault)e.preventDefault()
+
+});
+
 refreshLibrary();refreshRecent();
-loadEpisode(Math.max(0,Math.min(episodes.length-1,Number(saved.lastEpisode)||0)),false);
+
+loadEpisode(
+
+  Math.max(
+
+    0,
+
+    Math.min(
+
+      episodes.length - 1,
+
+      Number(saved.lastEpisode) || 0
+
+    )
+
+  ),
+
+  true
+
+);
+
 })();
+
 </script>
+
 <script>
+
 /* Re-run the single masked gradient glow every 12 seconds.
-   Legacy TV browsers without CSS mask/animation simply display the static logo. */
+
+   Legacy TV browsers without CSS mask/animation simply display the static logo. */
+
 (function(){
- var brand=document.getElementById('brandMotion');
- if(!brand)return;
- var png=document.getElementById('allendLogo').src;
- brand.style.setProperty && brand.style.setProperty('--brand-mask','url("'+png+'")');
- function animate(){
-  brand.className=brand.className.replace(/\s*brand-animate/g,'');
-  void brand.offsetWidth;
-  brand.className+=' brand-animate';
- }
- animate();
- window.setInterval(animate,12000);
+
+ var brand=document.getElementById('brandMotion');
+
+ if(!brand)return;
+
+ var png=document.getElementById('allendLogo').src;
+
+ brand.style.setProperty && brand.style.setProperty('--brand-mask','url("'+png+'")');
+
+ function animate(){
+
+  brand.className=brand.className.replace(/\s*brand-animate/g,'');
+
+  void brand.offsetWidth;
+
+  brand.className+=' brand-animate';
+
+ }
+
+ animate();
+
+ window.setInterval(animate,12000);
+
 })();
+
 </script>
-</body>
+
+<script src="jump-to-player.js"></script></body>
+
 </html>

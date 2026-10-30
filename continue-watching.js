@@ -1,0 +1,8 @@
+(function(){
+const root=document.getElementById('continueGrid'),section=document.getElementById('continueWatching');if(!root)return;
+const items=[];const movies=window.ALLEND_MOVIES||[],series=window.ALLEND_SERIES||[];
+for(const m of movies){let seconds=0;try{seconds=Number(localStorage.getItem('allend-movie-progress-'+m.id))||0}catch(e){}if(seconds>10&&!localStorage.getItem('allend-movie-finished-'+m.id))items.push({title:m.title,subtitle:'Movie · Resume at '+Math.floor(seconds/60)+'m',poster:m.poster,url:'movie.html?id='+encodeURIComponent(m.id)+'#screen',progress:0})}
+for(const s of series){let data={};try{data=JSON.parse(localStorage.getItem(s.id+'-progress-v1')||'{}')}catch(e){}const i=Number(data.lastEpisode)||0,seconds=Number((data.positions||{})[i])||0;if(seconds>10)items.push({title:s.title,subtitle:'Episode '+(i+1)+' · Resume at '+Math.floor(seconds/60)+'m',poster:s.poster,url:'player.html?series='+encodeURIComponent(s.id)+'#screen',progress:0})}
+if(!items.length)return;section.hidden=false;
+items.forEach(m=>{const a=document.createElement('a');a.className='continue-card';a.href=m.url;if(m.poster){const img=document.createElement('img');img.src=m.poster;img.alt='';img.loading='lazy';a.appendChild(img)}const content=document.createElement('span');const title=document.createElement('strong');title.textContent=m.title;const sub=document.createElement('small');sub.textContent=m.subtitle;content.append(title,sub);a.appendChild(content);root.appendChild(a)});
+})();

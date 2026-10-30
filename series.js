@@ -8,7 +8,11 @@ window.ALLEND_SERIES = [
     episodes: 52,
     baseUrl: "https://pl.farsiland.buzz/series/jeyran/",
     extension: ".720.mp4",
-    token: "it_R-cMM8URNLQIbiJ1tnw"
+    token: window.ALLEND_TOKENS.farsiland,
+    intro: {
+      start: 0,
+      end: 90
+    }
   },
 
   {
@@ -16,9 +20,29 @@ window.ALLEND_SERIES = [
     title: "Koori",
     description: "Persian Series",
     poster: "https://farsiland.com/wp-content/uploads/2026/07/koori.jpg",
-    episodes: 12, // Example count: update when confirmed
+    episodes: 12,
     baseUrl: "https://pl.farsiland.buzz/series/koori/",
     extension: ".720.mp4",
-    token: "it_R-cMM8URNLQIbiJ1tnw"
+    token: window.ALLEND_TOKENS.farsiland,
+    intro: {
+      start: 0,
+      end: 90
+    }
+  },
+
+   {
+    id: "Shah-Gol",
+    title: "Shah Gol",
+    description: "Game-Show",
+    poster: "https://img.farsiplex.com/wp-content/uploads/2026/08/shah-gol.jpg",
+    episodes: 12,
+    baseUrl: "https://pl.farsiland.buzz/series/shahgol/",
+    extension: ".720.mp4",
+    token: window.ALLEND_TOKENS.farsiplex,
+    intro: {
+      start: 0,
+      end: 90
+    }
   }
+
 ];
