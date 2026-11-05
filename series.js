@@ -50,7 +50,7 @@ window.ALLEND_SERIES = [
     id: "Taxi",
     title: "Taxi",
     description: "Persian Series",
-    poster: "https://m.media-amazon.com/images/M/MV5BZDJiMjdkOGUtZGJjZC00YWY5LWJkMTMtOTgzZjc0MWU0ZTVjXkEyXkFqcGc@._V1_.jpg",
+    poster: "https://img.farsiplex.com/wp-content/uploads/2026/10/taxi.jpg",
     episodes: 20,
     baseUrl: "https://pl.farsiland.buzz/series/taxi/",
     extension: ".720.mp4",
