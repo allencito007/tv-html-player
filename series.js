@@ -48,10 +48,10 @@ window.ALLEND_SERIES = [
 
 
 {
-    id: "Joker-2-Se07",
-    title: "Joker-2-Se07",
+    id: "Joker-1-Se1",
+    title: "Joker-1-Se1",
     description: "Game-Show",
-    poster: "https://img.farsiplex.com/wp-content/uploads/2024/06/joker-2-201x300.png",
+    poster: "https://img.farsiplex.com/wp-content/uploads/2024/06/joker-1-201x300.png",
     episodes: 12,
     baseUrl: "https://pl.farsiland.buzz/series/joker/",
     extension: ".720.mp4",
