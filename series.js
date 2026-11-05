@@ -45,8 +45,6 @@ window.ALLEND_SERIES = [
     }
   },
   
-https://img.farsiplex.com/wp-content/uploads/2026/07/bemdad-khomar-se2.jpg
-
 
 
 {
