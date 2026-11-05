@@ -45,13 +45,17 @@ window.ALLEND_SERIES = [
     }
   },
   
-  {
-    id: "Shah-Gol",
-    title: "Shah Gol",
+https://img.farsiplex.com/wp-content/uploads/2026/07/bemdad-khomar-se2.jpg
+
+
+
+{
+    id: "Joker-2-Se07",
+    title: "Joker-2-Se07",
     description: "Game-Show",
-    poster: "https://img.farsiplex.com/wp-content/uploads/2026/08/shah-gol.jpg",
+    poster: "https://img.farsiplex.com/wp-content/uploads/2024/06/joker-2-201x300.png",
     episodes: 12,
-    baseUrl: "https://pl.farsiland.buzz/series/shahgol/",
+    baseUrl: "https://pl.farsiland.buzz/series/joker-2-se07/",
     extension: ".720.mp4",
     token: window.ALLEND_TOKENS.farsiplex,
     intro: {
