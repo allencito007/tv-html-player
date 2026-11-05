@@ -43,6 +43,22 @@ window.ALLEND_SERIES = [
       start: 0,
       end: 90
     }
-  }
+  },
+  
+  
+  {
+    id: "Taxi",
+    title: "Taxi",
+    description: "Persian Series",
+    poster: "https://m.media-amazon.com/images/M/MV5BZDJiMjdkOGUtZGJjZC00YWY5LWJkMTMtOTgzZjc0MWU0ZTVjXkEyXkFqcGc@._V1_.jpg",
+    episodes: 20,
+    baseUrl: "https://pl.farsiland.buzz/series/taxi/",
+    extension: ".720.mp4",
+    token: window.ALLEND_TOKENS.farsiland,
+    intro: {
+      start: 0,
+      end: 90
+    }
+  },
 
 ];
