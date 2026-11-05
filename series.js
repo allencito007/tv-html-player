@@ -45,6 +45,21 @@ window.ALLEND_SERIES = [
     }
   },
   
+  {
+    id: "Shah-Gol",
+    title: "Shah Gol",
+    description: "Game-Show",
+    poster: "https://img.farsiplex.com/wp-content/uploads/2026/08/shah-gol.jpg",
+    episodes: 12,
+    baseUrl: "https://pl.farsiland.buzz/series/shahgol/",
+    extension: ".720.mp4",
+    token: window.ALLEND_TOKENS.farsiplex,
+    intro: {
+      start: 0,
+      end: 90
+    }
+  },
+  
   
   {
     id: "Taxi",
