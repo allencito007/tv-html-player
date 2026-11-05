@@ -53,7 +53,7 @@ window.ALLEND_SERIES = [
     description: "Game-Show",
     poster: "https://img.farsiplex.com/wp-content/uploads/2024/06/joker-2-201x300.png",
     episodes: 12,
-    baseUrl: "https://pl.farsiland.buzz/series/joker-2-se07/",
+    baseUrl: "https://pl.farsiland.buzz/series/joker/",
     extension: ".720.mp4",
     token: window.ALLEND_TOKENS.farsiplex,
     intro: {
