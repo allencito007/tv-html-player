@@ -60,5 +60,21 @@ window.ALLEND_SERIES = [
       end: 90
     }
   },
+  
+  
+  {
+    id: "bamdade-khomar",
+    title: "bamdade-khomar",
+    description: "Persian Series",
+    poster: "https://img.farsiplex.com/wp-content/uploads/2026/07/bemdad-khomar-se2.jpg",
+    episodes: 50,
+    baseUrl: "https://pl.farsiland.buzz/series/bamdade-khomar"/,
+    extension: ".720.mp4",
+    token: window.ALLEND_TOKENS.farsiland,
+    intro: {
+      start: 0,
+      end: 90
+    }
+  },
 
 ];
